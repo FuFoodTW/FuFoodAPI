@@ -8,6 +8,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<LineOAuthOptions>(
     builder.Configuration.GetSection(LineOAuthOptions.SectionName));
+builder.Services.AddHttpClient<LineOAuthService>();
 
 var app = builder.Build();
 
@@ -17,6 +18,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+app.MapControllers();
 
 app.Run();

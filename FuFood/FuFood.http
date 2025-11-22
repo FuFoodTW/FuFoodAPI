@@ -1,0 +1,6 @@
+@FuFood_HostAddress = http://localhost:5272
+
+GET {{FuFood_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

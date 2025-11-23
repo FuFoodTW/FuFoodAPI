@@ -1,0 +1,15 @@
+﻿services:
+  pg:
+    image: postgres:18-alpine
+    ports:
+      - 5487:5432
+    environment:
+      POSTGRES_DB: fufood_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes: # 連接一個小硬碟叫 pg,用來在電腦重開起後還能保存虛擬機內的東西,冒號後面是在儲存在虛擬機內的路徑
+      - pg:/var/lib/postgresql/18/docker
+    restart: unless-stopped
+
+volumes:
+  pg: { }

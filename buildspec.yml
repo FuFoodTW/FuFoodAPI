@@ -3,8 +3,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - ASPNET_VERSION=9.0
-      - DOTNET_SDK_VERSION=9.0
+      - ASPNET_VERSION=10.0
+      - DOTNET_SDK_VERSION=10.0
       - docker pull mcr.microsoft.com/dotnet/aspnet:$ASPNET_VERSION
       - docker pull mcr.microsoft.com/dotnet/sdk:$DOTNET_SDK_VERSION
       - echo Logging in to Amazon ECR...

@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - ASPNET_VERSION=9.0
+      - DOTNET_SDK_VERSION=9.0
+      - docker pull mcr.microsoft.com/dotnet/aspnet:$ASPNET_VERSION
+      - docker pull mcr.microsoft.com/dotnet/sdk:$DOTNET_SDK_VERSION
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - ECR_BASE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+      - BACKEND_URI="$ECR_BASE_URI/fufood-backend"
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building Docker image for backend
+      - docker build -t $BACKEND_URI:$IMAGE_TAG --cache-from $BACKEND_URI:$ENV --build-arg BUILDKIT_INLINE_CACHE=1 -f FuFood/Dockerfile .
+      - docker tag $BACKEND_URI:$IMAGE_TAG $BACKEND_URI:$ENV
+
+  post_build:
+    commands:
+      - docker push $BACKEND_URI:$IMAGE_TAG
+      - docker push $BACKEND_URI:$ENV
+
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/restart-docker-services.sh
+  name: "phoenix-docker-$GIT_BRANCH-$(date +%Y-%m-%d)"
+  discard-paths: yes

@@ -26,6 +26,19 @@ public class LineOAuthController(LineOAuthService service) : Controller
         return Redirect(url);
     }
 
+    [HttpGet("/oauth/line/callback")]
+    public async Task<IActionResult> Callback(string code, string state)
+    {
+        Request.Cookies.TryGetValue(CookieName, out var cookieState);
+        if (string.IsNullOrEmpty(cookieState) || state != cookieState)
+        {
+            return BadRequest();
+        }
+
+        var response = await service.IssueAccessToken(code);
+        return Ok(response);
+    }
+
     private string GenerateState()
     {
         var bytes = RandomNumberGenerator.GetBytes(4);

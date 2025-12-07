@@ -1,4 +1,5 @@
 using FuFood.Data;
+using FuFood.Repositories;
 using FuFood.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<LineOAuthOptions>(
     builder.Configuration.GetSection(LineOAuthOptions.SectionName));
 builder.Services.AddHttpClient<LineOAuthService>();
+builder.Services.AddScoped<UserRepository>();
 
 var app = builder.Build();
 

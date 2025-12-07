@@ -1,11 +1,12 @@
 ﻿using System.Security.Cryptography;
+using FuFood.Repositories;
 using FuFood.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FuFood.Controllers;
 
 [ApiController]
-public class LineOAuthController(LineOAuthService service) : Controller
+public class LineOAuthController(LineOAuthService service, UserRepository userRepository) : Controller
 {
     private const string CookieName = "oauth_state";
 
@@ -37,7 +38,8 @@ public class LineOAuthController(LineOAuthService service) : Controller
 
         var response = await service.IssueAccessToken(code);
         var claims = service.DecodeIdToken(response.IdToken);
-        return Ok(claims);
+        var user = await userRepository.FindOrCreateUserFromLineIdTokenClaims(claims);
+        return Ok(user);
     }
 
     private string GenerateState()

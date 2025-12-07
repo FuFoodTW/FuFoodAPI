@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using FuFood.Models;
+using JWT;
+using JWT.Builder;
+using JWT.Serializers;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 
 namespace FuFood.Services;
@@ -22,7 +26,7 @@ public class LineOAuthService(HttpClient client, IOptions<LineOAuthOptions> opti
         return QueryHelpers.AddQueryString(AuthorizeBaseUrl, queryParams!);
     }
 
-    public async Task<string> IssueAccessToken(string code)
+    public async Task<LineIssueAccessTokenResponse> IssueAccessToken(string code)
     {
         var body = new Dictionary<string, string>
         {
@@ -33,6 +37,13 @@ public class LineOAuthService(HttpClient client, IOptions<LineOAuthOptions> opti
             ["client_secret"] = _options.ClientSecret
         };
         var response = await client.PostAsync(IssueAccessTokenUrl, new FormUrlEncodedContent(body));
-        return await response.EnsureSuccessStatusCode().Content.ReadAsStringAsync();
+        var tokenResponse = await response.EnsureSuccessStatusCode().Content
+            .ReadFromJsonAsync<LineIssueAccessTokenResponse>();
+        return tokenResponse!;
+    }
+
+    public LineIdTokenClaims DecodeIdToken(string idToken)
+    {
+        return JwtBuilder.Create().DoNotVerifySignature().Decode<LineIdTokenClaims>(idToken);
     }
 }

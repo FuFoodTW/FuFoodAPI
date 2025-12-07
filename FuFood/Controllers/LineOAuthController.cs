@@ -36,7 +36,8 @@ public class LineOAuthController(LineOAuthService service) : Controller
         }
 
         var response = await service.IssueAccessToken(code);
-        return Ok(response);
+        var claims = service.DecodeIdToken(response.IdToken);
+        return Ok(claims);
     }
 
     private string GenerateState()

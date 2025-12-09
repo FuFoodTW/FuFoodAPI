@@ -1,6 +1,7 @@
 using FuFood.Data;
 using FuFood.Repositories;
 using FuFood.Services;
+using FuFood.Services.AuthHandlers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,13 +25,13 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddSingleton<JwtService>();
 
+builder.Services.AddAuthentication("JwtCookie")
+    .AddScheme<AccessTokenHandlerOptions, AccessTokenHandler>("JwtCookie", opts => { });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 if (app.Environment.IsProduction())
 {
@@ -39,6 +40,6 @@ if (app.Environment.IsProduction())
     await db.Database.MigrateAsync();
 }
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 
 app.Run();

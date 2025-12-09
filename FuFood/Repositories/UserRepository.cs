@@ -9,10 +9,7 @@ public class UserRepository(AppDbContext db)
     public async Task<User> FindOrCreateUserFromLineIdTokenClaims(LineIdTokenClaims claims)
     {
         var user = await db.Users.FirstOrDefaultAsync(u => u.LineId == claims.Subject);
-        if (user != null)
-        {
-            return user;
-        }
+        if (user != null) return user;
 
         user = new User
         {
@@ -23,5 +20,10 @@ public class UserRepository(AppDbContext db)
         db.Users.Add(user);
         await db.SaveChangesAsync();
         return user;
+    }
+
+    public async Task<User?> GetUserById(Guid id)
+    {
+        return await db.Users.FindAsync(id);
     }
 }

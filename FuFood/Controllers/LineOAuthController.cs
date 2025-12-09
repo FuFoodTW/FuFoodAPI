@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using FuFood.Repositories;
 using FuFood.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FuFood.Controllers;
@@ -13,6 +14,7 @@ public class LineOAuthController(LineOAuthService lineService, UserRepository us
     private const string AccessTokenCookieName = "access_token";
 
     [HttpGet("/oauth/line/init")]
+    [AllowAnonymous]
     public IActionResult Init()
     {
         var state = GenerateState();
@@ -30,13 +32,11 @@ public class LineOAuthController(LineOAuthService lineService, UserRepository us
     }
 
     [HttpGet("/oauth/line/callback")]
+    [AllowAnonymous]
     public async Task<IActionResult> Callback(string code, string state)
     {
         Request.Cookies.TryGetValue(StateCookieName, out var cookieState);
-        if (string.IsNullOrEmpty(cookieState) || state != cookieState)
-        {
-            return BadRequest();
-        }
+        if (string.IsNullOrEmpty(cookieState) || state != cookieState) return BadRequest();
 
         var response = await lineService.IssueAccessToken(code);
         var claims = lineService.DecodeIdToken(response.IdToken);
@@ -56,7 +56,7 @@ public class LineOAuthController(LineOAuthService lineService, UserRepository us
         return Ok(user);
     }
 
-    private string GenerateState()
+    private static string GenerateState()
     {
         var bytes = RandomNumberGenerator.GetBytes(4);
         return Convert.ToHexStringLower(bytes);

@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace FuFood.Controllers;
 
 [ApiController]
-public class LineOAuthController(LineOAuthService service, UserRepository userRepository) : Controller
+public class LineOAuthController(LineOAuthService lineService, UserRepository userRepository, JwtService jwtService)
+    : Controller
 {
-    private const string CookieName = "oauth_state";
+    private const string StateCookieName = "oauth_state";
+    private const string AccessTokenCookieName = "access_token";
 
     [HttpGet("/oauth/line/init")]
     public IActionResult Init()
@@ -17,28 +19,40 @@ public class LineOAuthController(LineOAuthService service, UserRepository userRe
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = HttpContext.Request.IsHttps,
+            Secure = Request.IsHttps,
             SameSite = SameSiteMode.Lax,
             MaxAge = TimeSpan.FromMinutes(10),
             IsEssential = true
         };
-        Response.Cookies.Append(CookieName, state, cookieOptions);
-        var url = service.GetAuthorizationUrl(state);
+        Response.Cookies.Append(StateCookieName, state, cookieOptions);
+        var url = lineService.GetAuthorizationUrl(state);
         return Redirect(url);
     }
 
     [HttpGet("/oauth/line/callback")]
     public async Task<IActionResult> Callback(string code, string state)
     {
-        Request.Cookies.TryGetValue(CookieName, out var cookieState);
+        Request.Cookies.TryGetValue(StateCookieName, out var cookieState);
         if (string.IsNullOrEmpty(cookieState) || state != cookieState)
         {
             return BadRequest();
         }
 
-        var response = await service.IssueAccessToken(code);
-        var claims = service.DecodeIdToken(response.IdToken);
+        var response = await lineService.IssueAccessToken(code);
+        var claims = lineService.DecodeIdToken(response.IdToken);
         var user = await userRepository.FindOrCreateUserFromLineIdTokenClaims(claims);
+
+        var accessToken = jwtService.IssueAccessTokenForUser(user);
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = Request.IsHttps
+        };
+
+        Response.Cookies.Append(AccessTokenCookieName, accessToken, cookieOptions);
+        Response.Cookies.Delete(StateCookieName);
         return Ok(user);
     }
 

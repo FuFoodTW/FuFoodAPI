@@ -17,8 +17,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<LineOAuthOptions>(
     builder.Configuration.GetSection(LineOAuthOptions.SectionName));
+builder.Services.Configure<CryptoOptions>(
+    builder.Configuration.GetSection(CryptoOptions.SectionName));
 builder.Services.AddHttpClient<LineOAuthService>();
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddSingleton<CryptoService>();
+builder.Services.AddSingleton<JwtService>();
 
 var app = builder.Build();
 

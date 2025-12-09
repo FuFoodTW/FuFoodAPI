@@ -24,6 +24,9 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddSingleton<JwtService>();
 
+builder.Services.AddAuthentication("AccessToken")
+    .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,6 +42,6 @@ if (app.Environment.IsProduction())
     await db.Database.MigrateAsync();
 }
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 
 app.Run();

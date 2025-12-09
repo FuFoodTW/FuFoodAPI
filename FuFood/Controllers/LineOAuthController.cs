@@ -1,11 +1,13 @@
 ﻿using System.Security.Cryptography;
 using FuFood.Repositories;
 using FuFood.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FuFood.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 public class LineOAuthController(LineOAuthService lineService, UserRepository userRepository, JwtService jwtService)
     : Controller
 {

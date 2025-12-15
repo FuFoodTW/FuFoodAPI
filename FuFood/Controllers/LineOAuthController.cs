@@ -8,7 +8,11 @@ namespace FuFood.Controllers;
 
 [ApiController]
 [AllowAnonymous]
-public class LineOAuthController(LineOAuthService lineService, UserRepository userRepository, JwtService jwtService)
+public class LineOAuthController(
+    LineOAuthService lineService,
+    UserRepository userRepository,
+    JwtService jwtService,
+    IHostEnvironment env)
     : Controller
 {
     private const string StateCookieName = "oauth_state";
@@ -51,7 +55,7 @@ public class LineOAuthController(LineOAuthService lineService, UserRepository us
             HttpOnly = true,
             IsEssential = true,
             SameSite = SameSiteMode.None,
-            Secure = Request.IsHttps,
+            Secure = env.IsProduction(),
             MaxAge = TimeSpan.FromDays(1)
         };
 

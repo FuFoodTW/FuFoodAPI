@@ -50,8 +50,9 @@ public class LineOAuthController(LineOAuthService lineService, UserRepository us
         {
             HttpOnly = true,
             IsEssential = true,
-            SameSite = SameSiteMode.Lax,
-            Secure = Request.IsHttps
+            SameSite = SameSiteMode.None,
+            Secure = Request.IsHttps,
+            MaxAge = TimeSpan.FromDays(1)
         };
 
         Response.Cookies.Append(AccessTokenCookieName, accessToken, cookieOptions);

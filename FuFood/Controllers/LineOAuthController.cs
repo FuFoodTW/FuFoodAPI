@@ -15,7 +15,6 @@ public class LineOAuthController(
     : Controller
 {
     private const string StateCookieName = "oauth_state";
-    private const string AccessTokenCookieName = "access_token";
 
     // Init() 工作 1.產生隨機值 2.設定 cookie 3.導向 line 登入的 URL
     [HttpGet("/oauth/line/init")]
@@ -58,7 +57,7 @@ public class LineOAuthController(
             MaxAge = TimeSpan.FromDays(1)
         };
 
-        Response.Cookies.Append(AccessTokenCookieName, accessToken, cookieOptions);
+        Response.Cookies.Append(Constants.AccessTokenCookieName, accessToken, cookieOptions);
         Response.Cookies.Delete(StateCookieName);
         return View();
     }

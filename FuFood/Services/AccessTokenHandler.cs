@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
+using FuFood.Controllers;
 using FuFood.Models;
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Authentication;
@@ -22,7 +23,7 @@ public class AccessTokenHandler(
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         // 檢查請求裡的 cookie 有沒有我要的值
-        Request.Cookies.TryGetValue("access_token", out var accessToken);
+        Request.Cookies.TryGetValue(Constants.AccessTokenCookieName, out var accessToken);
         if (string.IsNullOrEmpty(accessToken))
         {
             return AuthenticateResult.Fail("no cookie");

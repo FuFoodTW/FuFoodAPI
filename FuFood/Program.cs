@@ -27,6 +27,17 @@ builder.Services.AddSingleton<JwtService>();
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendAppPolicy", builder =>
+    {
+        builder
+            .WithOrigins(["http://localhost:5173", "https://fufood.vercel.app"])
+            .AllowAnyHeader() // 允許瀏覽器附上任何請求標頭
+            .AllowAnyMethod() // 允許 get, post 等,任何 http 請求方法
+            .AllowCredentials(); //允許瀏覽器傳送 Http only cookies
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

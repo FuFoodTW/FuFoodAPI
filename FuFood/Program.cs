@@ -40,6 +40,11 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 
+app.UseCors("FrontendAppPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -53,7 +58,6 @@ if (app.Environment.IsProduction())
     await db.Database.MigrateAsync();
 }
 
-app.UseCors("FrontendAppPolicy");
 app.MapControllers().RequireAuthorization();
 
 app.Run();

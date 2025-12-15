@@ -18,8 +18,10 @@ public class AccessTokenHandler(
     {
     }
 
+    // asp.net 要求的驗證策略, 這函式在每次有請求的時候都會被呼叫,檢驗一次 access token 及使用者是否還存在
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        // 檢查請求裡的 cookie 有沒有我要的值
         Request.Cookies.TryGetValue("access_token", out var accessToken);
         if (string.IsNullOrEmpty(accessToken))
         {
@@ -44,7 +46,7 @@ public class AccessTokenHandler(
             Console.WriteLine(e);
         }
 
-        return AuthenticateResult.Fail("用戶驗證錯誤");
+        return AuthenticateResult.Fail("Invalid access token");
     }
 
     private AuthenticationTicket BuildTicketForUser(User user)

@@ -45,6 +45,8 @@ builder.Services.AddCors(options =>
             .AllowCredentials(); //允許瀏覽器傳送 Http only cookies
     });
 });
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 app.UseCors("FrontendAppPolicy");
@@ -55,6 +57,8 @@ app.UseAuthorization();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.MapOpenApi();
 }
 
@@ -66,5 +70,6 @@ if (app.Environment.IsProduction())
 }
 
 app.MapControllers().RequireAuthorization();
+app.MapSwagger();
 
 app.Run();

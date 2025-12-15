@@ -53,6 +53,7 @@ if (app.Environment.IsProduction())
     await db.Database.MigrateAsync();
 }
 
+app.UseCors("FrontendAppPolicy");
 app.MapControllers().RequireAuthorization();
 
 app.Run();

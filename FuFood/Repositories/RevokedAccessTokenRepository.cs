@@ -19,11 +19,13 @@ public class RevokedAccessTokenRepository(AppDbContext dbContext, JwtService jwt
             var claims = jwtService.DecodeAccessToken(token);
             var hash = HashToken(token);
 
-            await dbContext.RevokedAccessTokens.Upsert(new RevokedAccessToken
-                {
-                    TokenHash = hash,
-                    ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(claims.ExpiresAt).DateTime,
-                })
+            var record = new RevokedAccessToken
+            {
+                TokenHash = hash,
+                ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(claims.ExpiresAt).DateTime.ToUniversalTime(),
+            };
+
+            await dbContext.RevokedAccessTokens.Upsert(record)
                 .On(t => t.TokenHash)
                 .NoUpdate()
                 .RunAsync();

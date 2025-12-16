@@ -3,5 +3,5 @@
 public class CryptoOptions
 {
     public const string SectionName = "Crypto";
-    public byte[] SecretKeyBase { get; set; }
+    public required byte[] SecretKeyBase { get; set; }
 }

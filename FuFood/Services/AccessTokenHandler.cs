@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using FuFood.Controllers;
 using FuFood.Models;
 using FuFood.Repositories;
+using JWT.Exceptions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -31,18 +32,29 @@ public class AccessTokenHandler(
 
         var services = Request.HttpContext.RequestServices; // 會呼叫 Program.cs 裡的所有 services, 為了方便拿取 JwtService
         var jwtService = services.GetRequiredService<JwtService>(); // 主動 DI
-        var repo = services.GetRequiredService<UserRepository>();
+        var userRepository = services.GetRequiredService<UserRepository>();
+        var tokenRepository = services.GetRequiredService<RevokedAccessTokenRepository>();
+
+        if (await tokenRepository.IsTokenRevoked(accessToken))
+        {
+            return AuthenticateResult.Fail("Access token has been revoked");
+        }
+
         try
         {
             var claims = jwtService.DecodeAccessToken(accessToken);
-            var user = await repo.GetUserById(claims.Subject);
+            var user = await userRepository.GetUserById(claims.Subject);
             if (user != null)
             {
                 var ticket = BuildTicketForUser(user);
                 return AuthenticateResult.Success(ticket);
             }
         }
-        catch (Exception e)
+        catch (TokenExpiredException e)
+        {
+            return AuthenticateResult.Fail("Access token expired");
+        }
+        catch (SignatureVerificationException e)
         {
             Console.WriteLine(e);
         }

@@ -15,12 +15,19 @@ builder.Services.AddOpenApi();
 
 // 添加 Controller
 builder.Services.AddControllersWithViews();
+
+// Configuration
 builder.Services.Configure<LineOAuthOptions>(
     builder.Configuration.GetSection(LineOAuthOptions.SectionName));
 builder.Services.Configure<CryptoOptions>(
     builder.Configuration.GetSection(CryptoOptions.SectionName));
-builder.Services.AddHttpClient<LineOAuthService>();
+
+// Repositories
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<RevokedAccessTokenRepository>();
+
+// Services
+builder.Services.AddHttpClient<LineOAuthService>();
 builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddSingleton<JwtService>();
 
@@ -32,7 +39,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendAppPolicy", builder =>
     {
         builder
-            .WithOrigins(["http://localhost:5173", "https://fufood.vercel.app"])
+            .WithOrigins(["http://localhost:5173", "https://fufood.jocelynh.me"])
             .AllowAnyHeader() // 允許瀏覽器附上任何請求標頭
             .AllowAnyMethod() // 允許 get, post 等,任何 http 請求方法
             .AllowCredentials(); //允許瀏覽器傳送 Http only cookies

@@ -1,2 +1,5 @@
 [tools]
-dotnet = "10.0.100"
+dotnet = "latest"
+
+[env]
+ConnectionStrings__AppDbContext = "Host=localhost; Username=postgres; Password=postgres; Database=fufood_dev; Port=5432"

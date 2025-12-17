@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using FuFood.Controllers;
 using FuFood.Models;
+using FuFood.Models.Entities;
 using FuFood.Repositories;
 using JWT.Exceptions;
 using Microsoft.AspNetCore.Authentication;

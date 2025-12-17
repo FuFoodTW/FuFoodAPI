@@ -1,4 +1,5 @@
 using FuFood.Data;
+using FuFood.Models.Enums;
 using FuFood.Repositories;
 using FuFood.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 添加 DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"),
+        o => { o.MapEnum<UnitType>("product_unit"); }));
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -25,6 +27,7 @@ builder.Services.Configure<CryptoOptions>(
 // Repositories
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RevokedAccessTokenRepository>();
+builder.Services.AddScoped<RefrigeratorRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();
@@ -45,6 +48,8 @@ builder.Services.AddCors(options =>
             .AllowCredentials(); //允許瀏覽器傳送 Http only cookies
     });
 });
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 app.UseCors("FrontendAppPolicy");
@@ -55,6 +60,8 @@ app.UseAuthorization();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.MapOpenApi();
 }
 
@@ -66,5 +73,6 @@ if (app.Environment.IsProduction())
 }
 
 app.MapControllers().RequireAuthorization();
+app.MapSwagger();
 
 app.Run();

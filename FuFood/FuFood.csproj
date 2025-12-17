@@ -9,21 +9,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="10.0.0-beta1" />
-        <PackageReference Include="JWT" Version="11.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="10.0.0-beta1"/>
+        <PackageReference Include="JWT" Version="11.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
         <Content Include="..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Models\Dtos\"/>
+        <Folder Include="Models\Responses\"/>
     </ItemGroup>
 
 </Project>

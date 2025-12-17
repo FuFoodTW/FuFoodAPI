@@ -1,4 +1,5 @@
 ﻿using FuFood.Models;
+using FuFood.Models.Entities;
 using JWT.Algorithms;
 using JWT.Builder;
 

@@ -3,3 +3,4 @@ dotnet = "latest"
 
 [env]
 ConnectionStrings__AppDbContext = "Host=localhost; Username=postgres; Password=postgres; Database=fufood_dev; Port=5432"
+PGDATABASE = "fufood_dev"

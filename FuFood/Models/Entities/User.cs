@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace FuFood.Models;
+namespace FuFood.Models.Entities;
 
 [Index(nameof(LineId), IsUnique = true)]
 public class User

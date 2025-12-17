@@ -1,8 +1,9 @@
-using FuFood.Controllers;
+using FuFood.Models.Entities;
 using FuFood.Models.Requests;
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using FuFood.Models.Entities;
+
+namespace FuFood.Controllers;
 
 public class RefrigeratorController(RefrigeratorRepository repository) : Controller
 {
@@ -19,7 +20,7 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
     }
 
     // 顯示點選的單一群組
-    [HttpGet("/api/v1/refrigerators/{id}")]
+    [HttpGet("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Show(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -55,22 +56,26 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
         });
     }
 
-    [HttpPut("/api/v1/refrigerators/{id}")]
+    [HttpPut("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RefrigeratorUpdateRequest request)
     {
-        var user = await HttpContext.GetCurrentUser();
+        var user = await HttpContext.GetCurrentUser()!;
+        var refrigerator = await repository.GetUserRefrigeratorById(user!, id);
 
-        var success = await repository.Update(user!, id, request.Name, request.Colour);
-
-        if (!success)
+        if (refrigerator == null)
         {
             return NotFound();
         }
 
-        return NoContent();
+        refrigerator = await repository.Update(user!, refrigerator, request.Name, request.Colour);
+
+        return Ok(new
+        {
+            Data = refrigerator
+        });
     }
 
-    [HttpDelete("/api/v1/refrigerators/{id}")]
+    [HttpDelete("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();

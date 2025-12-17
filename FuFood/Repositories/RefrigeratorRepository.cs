@@ -22,9 +22,6 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     public async Task<Refrigerator> Create(User user, Refrigerator refrigerator)
     {
         refrigerator.CreatedById = user.Id;
-        refrigerator.CreatedAt = DateTime.UtcNow;
-        refrigerator.UpdatedAt = DateTime.UtcNow;
-
         dbContext.Refrigerators.Add(refrigerator);
         await dbContext.SaveChangesAsync();
 
@@ -32,22 +29,14 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     }
 
     // 只能編輯自己的冰箱
-    public async Task<bool> Update(User user, Guid id, string name, string? colour)
+    public async Task<Refrigerator?> Update(User user, Refrigerator refrigerator, string name, string? colour)
     {
-        var refrigerator =
-            await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == user.Id);
-
-        if (refrigerator == null)
-        {
-            return false;
-        }
-
         refrigerator.Name = name;
         refrigerator.Colour = colour;
         refrigerator.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync();
-        return true;
+        return refrigerator;
     }
 
     public async Task<bool> Delete(User user, Guid id)

@@ -1,5 +1,6 @@
 ﻿using FuFood.Data;
 using FuFood.Models;
+using FuFood.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Repositories;

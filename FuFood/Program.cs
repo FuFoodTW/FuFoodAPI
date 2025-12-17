@@ -27,6 +27,7 @@ builder.Services.Configure<CryptoOptions>(
 // Repositories
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RevokedAccessTokenRepository>();
+builder.Services.AddScoped<RefrigeratorRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();

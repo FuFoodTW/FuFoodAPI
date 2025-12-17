@@ -14,4 +14,20 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
             Data = refrigerators
         });
     }
+
+    [HttpGet("/api/v1/refrigerators/{id}")]
+    public async Task<IActionResult> Show(Guid id)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        var refrigerator = await repository.GetUserRefrigeratorById(user!, id);
+        if (refrigerator == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            Data = refrigerator
+        });
+    }
 }

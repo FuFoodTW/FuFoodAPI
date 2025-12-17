@@ -9,10 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="10.0.0-beta1" />
-        <PackageReference Include="JWT" Version="11.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+        <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="10.0.0-beta1"/>
+        <PackageReference Include="JWT" Version="11.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,7 +29,6 @@
 
     <ItemGroup>
         <Folder Include="Models\Dtos\"/>
-        <Folder Include="Models\Requests\"/>
         <Folder Include="Models\Responses\"/>
     </ItemGroup>
 

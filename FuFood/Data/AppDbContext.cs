@@ -20,5 +20,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<RevokedAccessToken>()
             .Property(x => x.Id)
             .ValueGeneratedNever();
+
+        modelBuilder.Entity<Refrigerator>()
+            .Property(r => r.Id)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<Refrigerator>()
+            .HasIndex(r => r.CreatedById)
+            .IsUnique()
+            .HasFilter("\"IsDefault\" = true");
     }
 }

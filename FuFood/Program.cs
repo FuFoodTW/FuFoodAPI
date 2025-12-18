@@ -28,6 +28,7 @@ builder.Services.Configure<CryptoOptions>(
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RevokedAccessTokenRepository>();
 builder.Services.AddScoped<RefrigeratorRepository>();
+builder.Services.AddScoped<InventoryTransactionRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();
@@ -57,13 +58,9 @@ app.UseCors("FrontendAppPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.MapOpenApi();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+app.MapOpenApi();
 
 if (app.Environment.IsProduction())
 {

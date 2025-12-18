@@ -27,6 +27,8 @@ namespace FuFood.Migrations
                 column: "CreatedById",
                 unique: true,
                 filter: "\"IsDefault\" = true");
+
+            migrationBuilder.Sql("delete from \"Users\";");
         }
 
         /// <inheritdoc />

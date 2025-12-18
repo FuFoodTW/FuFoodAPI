@@ -20,16 +20,17 @@ public static class HttpContextExtensions
             return Guid.Parse(maybeUuid);
         }
 
-        public async Task<User?> GetCurrentUser()
+        public async Task<User> GetCurrentUser()
         {
             var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
             var userId = context.CurrentUserId();
             if (userId == null)
             {
-                return null;
+               throw new InvalidOperationException("User ID not present in HttpContext");
             }
 
-            return await userRepository.GetUserById(userId.Value);
+            var user =  await userRepository.GetUserById(userId.Value);
+            return user!;
         }
     }
 }

@@ -27,7 +27,8 @@ public class UserRepository(AppDbContext db)
         var defaultRefrigerator = new Refrigerator
         {
             Name = "我的冰箱",
-            CreatedById = user.Id
+            CreatedById = user.Id,
+            IsDefault = true
         };
 
         db.Refrigerators.Add(defaultRefrigerator);

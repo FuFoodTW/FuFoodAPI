@@ -22,7 +22,18 @@ public class UserRepository(AppDbContext db)
             ProfilePictureUrl = claims.Picture
         };
         db.Users.Add(user);
+
+        // 建立預設冰箱
+        var defaultRefrigerator = new Refrigerator
+        {
+            Name = "我的冰箱",
+            CreatedById = user.Id
+        };
+
+        db.Refrigerators.Add(defaultRefrigerator);
+
         await db.SaveChangesAsync();
+
         return user;
     }
 

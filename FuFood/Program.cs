@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FuFood.Data;
 using FuFood.Models.Enums;
 using FuFood.Repositories;
@@ -16,7 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddOpenApi();
 
 // 添加 Controller
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // Configuration
 builder.Services.Configure<LineOAuthOptions>(

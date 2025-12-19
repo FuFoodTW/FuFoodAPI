@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FuFood.Models.Entities;
 
@@ -18,5 +19,5 @@ public class InventoryTransactionItem
     public virtual Product? Product { get; set; }
 
     public Guid InventoryTransactionId { get; set; }
-    public virtual InventoryTransaction? InventoryTransaction { get; set; }
+    [JsonIgnore] public virtual InventoryTransaction? InventoryTransaction { get; set; }
 }

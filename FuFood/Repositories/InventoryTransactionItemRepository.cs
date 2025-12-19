@@ -1,11 +1,19 @@
 ﻿using FuFood.Data;
 using FuFood.Models.Entities;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Repositories;
 
 public class InventoryTransactionItemRepository(AppDbContext dbContext)
 {
+    public async Task<InventoryTransactionItem> Create(InventoryTransactionItem item)
+    {
+        dbContext.InventoryTransactionsItems.Add(item);
+        await dbContext.SaveChangesAsync();
+        return item;
+    }
+    
     // 新增入庫項目
     public async Task<InventoryTransactionItem> Create(
         InventoryTransaction transaction, Product product, decimal quantity, DateOnly expirationDate,

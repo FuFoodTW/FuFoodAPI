@@ -29,6 +29,8 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RevokedAccessTokenRepository>();
 builder.Services.AddScoped<RefrigeratorRepository>();
 builder.Services.AddScoped<InventoryTransactionRepository>();
+builder.Services.AddScoped<InventoryTransactionItemRepository>();
+builder.Services.AddScoped<ProductRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();

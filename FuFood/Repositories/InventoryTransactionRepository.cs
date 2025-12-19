@@ -1,5 +1,6 @@
 using FuFood.Data;
 using FuFood.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Repositories;
 
@@ -17,5 +18,12 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
         dbContext.InventoryTransactions.Add(transaction);
         await dbContext.SaveChangesAsync();
         return transaction;
+    }
+
+    // 找該使用者有沒有這筆交易
+    public async Task<InventoryTransaction?> GetUserInventoryTransaction(User user, Guid transactionId)
+    {
+        return await dbContext.InventoryTransactions.Where(u => u.UserId == user.Id)
+            .FirstOrDefaultAsync(i => i.Id == transactionId);
     }
 }

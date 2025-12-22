@@ -26,4 +26,18 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
         return await dbContext.InventoryTransactions.Where(u => u.UserId == user.Id)
             .FirstOrDefaultAsync(i => i.Id == transactionId);
     }
+
+    // 入庫清單(簡略版)
+    public async Task<List<InventoryTransaction>> GetByRefrigerator(Guid refrigeratorId)
+    {
+        return await dbContext.InventoryTransactions.Where(t => t.RefrigeratorId == refrigeratorId)
+            .OrderByDescending(t => t.CreatedAt).ToListAsync();
+    }
+
+    // 入庫詳細
+    public async Task<InventoryTransaction?> GetDetail(Guid transactionId, Guid userId)
+    {
+        return await dbContext.InventoryTransactions.Where(t => t.Id == transactionId && t.UserId == userId)
+            .Include(t => t.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync();
+    }
 }

@@ -36,10 +36,10 @@ public class InventoryTransactionController(
             return NotFound();
         }
 
-        var transaction = await inventoryTransactionRepository.GetByRefrigerator(refrigeratorId);
+        var transactions = await inventoryTransactionRepository.GetByRefrigerator(refrigeratorId);
         return Ok(new
         {
-            Data = transaction
+            Data = transactions
         });
     }
 

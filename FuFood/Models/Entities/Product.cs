@@ -10,6 +10,10 @@ public class Product
     [StringLength(255)] public required string Name { get; set; }
     public decimal Quantity { get; set; }
     public required UnitType Unit { get; set; } // 單位
+
+    public ProductCategory Categories { get; set; } = ProductCategory.None; // 分類
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

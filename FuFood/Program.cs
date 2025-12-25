@@ -67,7 +67,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "請輸入 Bearer {你的 JWT token}"
+        Description = "請輸入你的 JWT token"
     });
 
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
@@ -92,6 +92,18 @@ if (app.Environment.IsProduction())
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+}
+
+if (args.Contains("seed"))
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
+        await Seeds.Run(db);
+    }
+
+    Environment.Exit(0);
 }
 
 app.MapControllers().RequireAuthorization();

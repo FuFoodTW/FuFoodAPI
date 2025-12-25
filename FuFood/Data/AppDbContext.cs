@@ -17,14 +17,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<RevokedAccessToken>()
-            .Property(x => x.Id)
-            .ValueGeneratedNever();
-
-        modelBuilder.Entity<Refrigerator>()
-            .Property(r => r.Id)
-            .ValueGeneratedNever();
-
         modelBuilder.Entity<Refrigerator>()
             .HasIndex(r => r.CreatedById)
             .IsUnique()

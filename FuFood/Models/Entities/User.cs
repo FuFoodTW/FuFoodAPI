@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Models.Entities;
@@ -6,6 +7,8 @@ namespace FuFood.Models.Entities;
 [Index(nameof(LineId), IsUnique = true)]
 public class User
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
     [StringLength(255)] public required string LineId { get; set; }

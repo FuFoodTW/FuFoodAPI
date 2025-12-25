@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FuFood.Models.Entities;
 
 public class Refrigerator
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
+
     [StringLength(100)] public required string Name { get; set; }
     [StringLength(30)] public string? Colour { get; set; }
 

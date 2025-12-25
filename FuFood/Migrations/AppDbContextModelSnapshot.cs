@@ -53,7 +53,7 @@ namespace FuFood.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransactionItem", b =>
@@ -95,7 +95,7 @@ namespace FuFood.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InventoryTransactionsItems");
+                    b.ToTable("InventoryTransactionsItems", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.Product", b =>
@@ -126,7 +126,7 @@ namespace FuFood.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.Refrigerator", b =>
@@ -161,7 +161,7 @@ namespace FuFood.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDefault\" = true");
 
-                    b.ToTable("Refrigerators");
+                    b.ToTable("Refrigerators", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.User", b =>
@@ -194,7 +194,7 @@ namespace FuFood.Migrations
                     b.HasIndex("LineId")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.RevokedAccessToken", b =>
@@ -219,7 +219,7 @@ namespace FuFood.Migrations
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
-                    b.ToTable("RevokedAccessTokens");
+                    b.ToTable("RevokedAccessTokens", (string)null);
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransaction", b =>

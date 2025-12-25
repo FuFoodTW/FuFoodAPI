@@ -47,6 +47,7 @@ public class InventoryTransactionItemController(
                 Name = createRequest.ProductParams.Name,
                 Quantity = createRequest.ProductParams.Quantity,
                 Unit = createRequest.ProductParams.Unit,
+                Categories = createRequest.ProductParams.Categories
             };
         }
 

@@ -41,6 +41,7 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddHttpClient<LineOAuthService>();
 builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<ProductService>();
 
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });

@@ -7,7 +7,7 @@ public enum ProductCategory
 {
     [Display(Name = "其他")] None = 0, // 0
     [Display(Name = "乳製品")] Dairy = 1 << 0, // 1
-    [Display(Name = "蔬果類")] Vegetable = 1 << 1, // 2
+    [Display(Name = "蔬菜類")] Vegetable = 1 << 1, // 2
     [Display(Name = "水果類")] Fruit = 1 << 2, // 4
     [Display(Name = "肉品類")] Meat = 1 << 3, // 8
     [Display(Name = "海鮮類")] Seafood = 1 << 4, // 16

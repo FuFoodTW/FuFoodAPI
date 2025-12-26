@@ -1,11 +1,13 @@
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using FuFood.Models.Requests;
 
 namespace FuFood.Controllers;
 
 public class InventoryTransactionController(
     RefrigeratorRepository refrigeratorRepository,
-    InventoryTransactionRepository inventoryTransactionRepository) : Controller
+    InventoryTransactionRepository inventoryTransactionRepository,
+    InventoryTransactionItemRepository itemRepository) : Controller
 {
     // 建立一筆交易
     [HttpPost("/api/v1/refrigerators/{refrigeratorId:guid}/inventory_transactions")]
@@ -59,5 +61,35 @@ public class InventoryTransactionController(
         {
             Data = detail
         });
+    }
+
+    // 消耗庫存
+    [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/consume")]
+    public async Task<IActionResult> Consume(
+        Guid transactionId,
+        [FromBody] InventoryConsumeRequest request)
+    {
+        var user = await HttpContext.GetCurrentUser();
+
+        var transaction = await inventoryTransactionRepository
+            .GetUserInventoryTransaction(user, transactionId);
+
+        if (transaction == null)
+            return NotFound("Transaction not found");
+
+        try
+        {
+            var result = await itemRepository.Consume(
+                transaction,
+                request.InventoryItemId,
+                request.Quantity
+            );
+
+            return Ok(new { Data = result });
+        }
+        catch (Exception ex)
+        {
+            return UnprocessableEntity(ex.Message);
+        }
     }
 }

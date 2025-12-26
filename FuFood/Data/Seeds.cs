@@ -15,14 +15,14 @@ public static class Seeds
         await dbContext.UpsertRange(new User
                 {
                     Name = "J",
-                    LineId = "U7bf624699aeaafbf4912865b063a6e23",
+                    LineId = "U78d1bb86f8410a52d375306295c06503",
                     ProfilePictureUrl =
                         "https://profile.line-scdn.net/0huz1iFvi7KlUMEDSb9GRVAnFVJDh7PiwddCU2Zn4YJGJ2c24ENiFiYSkZJGxxJG1UMCJgNyxCJjEoP2xTcC0AeyhVBh1XKW5lZC0VVHcWITxKV2tnMHYENCoSNiBkcDZ-SCUYY2BYCRJkWxlDMHImen9APDBRWTpjZiA"
                 },
                 new User
                 {
                     Name = "楊學民",
-                    LineId = "U78d1bb86f8410a52d375306295c06503",
+                    LineId = "U7bf624699aeaafbf4912865b063a6e23",
                     ProfilePictureUrl =
                         "https://profile.line-scdn.net/0hrFgyP3w9LWlaADi3UlVSPmZFIwQtLishImZiXXtTdFl0Yj48bjVqDyhXcF5zZ2k9YmRhD39VJ153"
                 },
@@ -72,7 +72,7 @@ public static class Seeds
             .NoUpdate()
             .RunAsync();
 
-        var jo = await dbContext.Users.FirstAsync(u => u.LineId == "U7bf624699aeaafbf4912865b063a6e23");
+        var jo = await dbContext.Users.FirstAsync(u => u.LineId == "U78d1bb86f8410a52d375306295c06503");
         var joFridge =
             await dbContext.Refrigerators.FirstAsync(r => r.CreatedById == jo.Id && r.IsDefault == true);
 
@@ -138,8 +138,8 @@ public static class Seeds
             .WhenMatched((fromDb, newRecord) => new InventoryTransactionItem
             {
                 ExpirationDate = newRecord.ExpirationDate,
-                UpdatedAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow
+                UpdatedAt = newRecord.UpdatedAt,
+                CreatedAt = newRecord.CreatedAt
             })
             .RunAsync();
 

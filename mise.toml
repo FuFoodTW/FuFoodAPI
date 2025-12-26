@@ -1,6 +1,13 @@
 [tools]
-dotnet = "latest"
+go = "latest"
 
 [env]
 # ConnectionStrings__AppDbContext = "Host=localhost; Username=postgres; Password=postgres; Database=fufood_dev; Port=5432"
 PGDATABASE = "fufood_dev"
+
+[tasks.token]
+shell = "pwsh -Command"
+run = """
+cd ./FuFood/scripts/issue_access_token
+go run .
+"""

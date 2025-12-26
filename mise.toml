@@ -12,7 +12,7 @@ cd ./FuFood/scripts/issue_access_token
 go run .
 """
 
-[tasks."token.copy"]
+[tasks.copy_token]
 shell = "pwsh -Command"
 run = """
 cd ./FuFood/scripts/issue_access_token

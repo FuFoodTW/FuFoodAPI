@@ -36,6 +36,7 @@ builder.Services.AddScoped<RefrigeratorRepository>();
 builder.Services.AddScoped<InventoryTransactionRepository>();
 builder.Services.AddScoped<InventoryTransactionItemRepository>();
 builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<InventoryQueryRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();

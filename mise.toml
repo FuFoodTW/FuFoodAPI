@@ -11,3 +11,10 @@ run = """
 cd ./FuFood/scripts/issue_access_token
 go run .
 """
+
+[tasks."token.copy"]
+shell = "pwsh -Command"
+run = """
+cd ./FuFood/scripts/issue_access_token
+go run . | set-clipboard
+"""

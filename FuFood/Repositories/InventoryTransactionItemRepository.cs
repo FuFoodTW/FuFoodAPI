@@ -90,16 +90,13 @@ public class InventoryTransactionItemRepository(AppDbContext dbContext)
             .SumAsync(i => i.Quantity);
 
         var remaining = parentItem.Quantity - consumed;
-        if (quantity <= 0 || quantity > remaining)
-        {
-            throw new Exception("Insufficient inventory");
-        }
+        if (quantity <= 0 || quantity > remaining) throw new Exception("Insufficient inventory");
 
         var consumeItem = new InventoryTransactionItem
         {
             ParentId = parentItem.Id,
             ProductId = parentItem.ProductId,
-            Quantity = quantity,
+            Quantity = -quantity,
             ExpirationDate = parentItem.ExpirationDate,
             InventoryTransactionId = transaction.Id
         };

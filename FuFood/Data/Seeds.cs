@@ -120,7 +120,7 @@ public static class Seeds
                 },
                 new InventoryTransactionItem
                 {
-                    Id = Guid.Parse("019b5618-01a3-77be-97fd-0b99cc24004f"),
+                    Id = milkItemId,
                     InventoryTransactionId = storingTransactionId,
                     ProductId = sushiId,
                     Quantity = 1,

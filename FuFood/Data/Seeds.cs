@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.JavaScript;
 using System.Transactions;
 using FuFood.Models.Entities;
 using FuFood.Models.Enums;
@@ -71,29 +72,48 @@ public static class Seeds
             .NoUpdate()
             .RunAsync();
 
-        var jo = await dbContext.Users.FirstOrDefaultAsync(u => u.LineId == "U7bf624699aeaafbf4912865b063a6e23");
-        var joFridge = await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.CreatedById == jo!.Id);
+        var jo = await dbContext.Users.FirstAsync(u => u.LineId == "U7bf624699aeaafbf4912865b063a6e23");
+        var joFridge =
+            await dbContext.Refrigerators.FirstAsync(r => r.CreatedById == jo.Id && r.IsDefault == true);
 
-        var transactionId = Guid.Parse("019b5610-1a1b-748d-966b-c16cd0d74c16");
+        var storingTransactionId = Guid.Parse("019b5610-1a1b-748d-966b-c16cd0d74c16");
+        var consumingTransactionId = Guid.Parse("019b5b8a-a792-764a-906a-3d0010e330e4");
 
         await dbContext.InventoryTransactions
-            .Upsert(new InventoryTransaction
+            .UpsertRange(new InventoryTransaction
                 {
-                    Id = transactionId,
-                    UserId = jo!.Id,
-                    RefrigeratorId = joFridge!.Id,
+                    Id = storingTransactionId,
+                    UserId = jo.Id,
+                    RefrigeratorId = joFridge.Id,
+                    FinalizedAt = DateTime.UtcNow
+                },
+                new InventoryTransaction
+                {
+                    Id = consumingTransactionId,
+                    UserId = jo.Id,
+                    RefrigeratorId = joFridge.Id,
                     FinalizedAt = DateTime.UtcNow
                 }
             )
             .On(t => t.Id)
-            .NoUpdate()
+            .WhenMatched((o, n) => new InventoryTransaction
+            {
+                RefrigeratorId = o.RefrigeratorId,
+                UserId = o.UserId,
+                FinalizedAt = n.FinalizedAt,
+                CreatedAt = n.CreatedAt,
+                UpdatedAt = n.UpdatedAt
+            })
             .RunAsync();
+
+        var milkItemId = Guid.Parse("019b5613-3a28-70fe-b74a-79be4368352b");
+        var milkConsumptionItemId = Guid.Parse("019b5b8c-000a-734e-ba9f-1b01bc22f2f7");
 
         await dbContext.InventoryTransactionsItems
             .UpsertRange(new InventoryTransactionItem
                 {
-                    Id = Guid.Parse("019b5613-3a28-70fe-b74a-79be4368352b"),
-                    InventoryTransactionId = transactionId,
+                    Id = milkItemId,
+                    InventoryTransactionId = storingTransactionId,
                     ProductId = milkId,
                     Quantity = 2,
                     ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
@@ -101,15 +121,25 @@ public static class Seeds
                 new InventoryTransactionItem
                 {
                     Id = Guid.Parse("019b5618-01a3-77be-97fd-0b99cc24004f"),
-                    InventoryTransactionId = transactionId,
+                    InventoryTransactionId = storingTransactionId,
                     ProductId = sushiId,
                     Quantity = 1,
                     ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2))
+                },
+                new InventoryTransactionItem
+                {
+                    Id = milkConsumptionItemId,
+                    InventoryTransactionId = consumingTransactionId,
+                    ParentId = milkItemId,
+                    ProductId = milkId,
+                    Quantity = -1
                 })
             .On(i => i.Id)
             .WhenMatched((fromDb, newRecord) => new InventoryTransactionItem
             {
-                ExpirationDate = newRecord.ExpirationDate
+                ExpirationDate = newRecord.ExpirationDate,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             })
             .RunAsync();
 

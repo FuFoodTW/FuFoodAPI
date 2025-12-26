@@ -10,6 +10,6 @@ public class InventoryItemDto
     public ProductCategory Category { get; set; }
     public UnitType Unit { get; set; }
     public decimal RemainingQuantity { get; set; }
-    public DateOnly ExpirationDate { get; set; }
+    public DateOnly? ExpirationDate { get; set; }
     public DateTime CreatedAt { get; set; }
 }

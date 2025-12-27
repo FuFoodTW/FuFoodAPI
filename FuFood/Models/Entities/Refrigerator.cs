@@ -9,14 +9,18 @@ public class Refrigerator
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    [StringLength(100)] public required string Name { get; set; }
+    [StringLength(10)] public required string Name { get; set; }
     [StringLength(30)] public string? Colour { get; set; }
+    [StringLength(255)] public string? QrCode { get; set; }
 
     public required Guid CreatedById { get; set; }
     public virtual User? CreatedBy { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime NameUpdatedAt { get; set; } = DateTime.MinValue;
 
     public bool IsDefault { get; set; } = false;
+    
+    public virtual ICollection<RefrigeratorMember> Members { get; set; } = new List<RefrigeratorMember>();
 }

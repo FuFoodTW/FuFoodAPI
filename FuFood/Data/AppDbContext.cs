@@ -12,10 +12,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RevokedAccessToken> RevokedAccessTokens { get; set; }
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<InventoryTransactionItem> InventoryTransactionsItems { get; set; }
+    public DbSet<RefrigeratorMember> RefrigeratorMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<RefrigeratorMember>()
+            .HasKey(rm => new { rm.RefrigeratorId, rm.MemberId });
+
+        modelBuilder.Entity<RefrigeratorMember>()
+            .HasOne(rm => rm.Refrigerator)
+            .WithMany(r => r.Members)
+            .HasForeignKey(rm => rm.RefrigeratorId);
+
+        modelBuilder.Entity<RefrigeratorMember>()
+            .HasOne(rm => rm.Member)
+            .WithMany()
+            .HasForeignKey(rm => rm.MemberId);
 
         modelBuilder.Entity<Refrigerator>()
             .HasIndex(r => r.CreatedById)

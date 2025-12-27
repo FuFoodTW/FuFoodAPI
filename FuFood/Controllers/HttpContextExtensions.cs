@@ -1,36 +1,36 @@
 using System.Security.Claims;
 using FuFood.Models.Entities;
 using FuFood.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FuFood.Controllers;
 
 public static class HttpContextExtensions
 {
-    extension(HttpContext context)
+    public static Guid? CurrentUserId(this HttpContext context)
     {
-        public Guid? CurrentUserId()
+        var maybeUuid = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(maybeUuid))
         {
-            var maybeUuid = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(maybeUuid))
-            {
-                return null;
-            }
-
-            return Guid.Parse(maybeUuid);
+            return null;
         }
 
-        public async Task<User> GetCurrentUser()
-        {
-            var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
-            var userId = context.CurrentUserId();
-            if (userId == null)
-            {
-               throw new InvalidOperationException("User ID not present in HttpContext");
-            }
+        return Guid.Parse(maybeUuid);
+    }
 
-            var user =  await userRepository.GetUserById(userId.Value);
-            return user!;
+    public static async Task<User> GetCurrentUser(this HttpContext context)
+    {
+        var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new InvalidOperationException("User ID not present in HttpContext");
         }
+
+        var user = await userRepository.GetUserByIdAsNoTracking(Guid.Parse(userId));
+        return user!;
     }
 }

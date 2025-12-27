@@ -61,8 +61,23 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger 設定 - 必須保留 AddSwaggerGen 讓 SwaggerUI 可以運作
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "請輸入你的 JWT token"
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
+});
 
 var app = builder.Build();
 
@@ -72,10 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // 使用自定義 OpenAPI JSON 文件
-app.UseSwaggerUI(options =>
-{
-    options.RoutePrefix = "swagger";
-});
+app.UseSwaggerUI(options => { options.RoutePrefix = "swagger"; });
 
 // 覆寫預設的 swagger.json，提供自定義的 OpenAPI 文件
 app.MapGet("/swagger/v1/swagger.json", async context =>

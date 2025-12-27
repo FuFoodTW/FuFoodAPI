@@ -1,20 +1,20 @@
 [tools]
 go = "latest"
+powershell = "latest"
 
 [env]
 # ConnectionStrings__AppDbContext = "Host=localhost; Username=postgres; Password=postgres; Database=fufood_dev; Port=5432"
+PGPORT = "5487"
+PGUSER = "postgres"
+PGPASSWORD = "postgres"
+PGHOST = "localhost"
 PGDATABASE = "fufood_dev"
 
 [tasks.token]
 shell = "pwsh -Command"
 run = """
 cd ./FuFood/scripts/issue_access_token
-go run .
-"""
-
-[tasks.copy_token]
-shell = "pwsh -Command"
-run = """
-cd ./FuFood/scripts/issue_access_token
-go run . | set-clipboard
+$value = go run .
+write-host $value
+$value | set-clipboard
 """

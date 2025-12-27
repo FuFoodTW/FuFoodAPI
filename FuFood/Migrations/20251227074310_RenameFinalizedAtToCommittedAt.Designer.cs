@@ -4,6 +4,7 @@ using FuFood.Data;
 using FuFood.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FuFood.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251227074310_RenameFinalizedAtToCommittedAt")]
+    partial class RenameFinalizedAtToCommittedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,15 +161,8 @@ namespace FuFood.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.Property<DateTime>("NameUpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("QrCode")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -178,24 +174,6 @@ namespace FuFood.Migrations
                         .HasFilter("\"IsDefault\" = true");
 
                     b.ToTable("Refrigerators");
-                });
-
-            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMember", b =>
-                {
-                    b.Property<Guid>("RefrigeratorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("RefrigeratorId", "MemberId");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("RefrigeratorMembers");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.User", b =>
@@ -218,9 +196,6 @@ namespace FuFood.Migrations
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("text");
-
-                    b.Property<int>("SubscriptionType")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -313,33 +288,9 @@ namespace FuFood.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMember", b =>
-                {
-                    b.HasOne("FuFood.Models.Entities.User", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FuFood.Models.Entities.Refrigerator", "Refrigerator")
-                        .WithMany("Members")
-                        .HasForeignKey("RefrigeratorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-
-                    b.Navigation("Refrigerator");
-                });
-
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransaction", b =>
                 {
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("FuFood.Models.Entities.Refrigerator", b =>
-                {
-                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,7 @@
 ﻿using FuFood.Models.Enums;
 using FuFood.Models.Requests;
 using FuFood.Data;
+using FuFood.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Repositories;
@@ -10,9 +11,10 @@ public class InventoryQueryRepository(AppDbContext dbContext)
     public async Task<Dictionary<Guid, decimal>> GetRemainingInventoryForItems(IEnumerable<Guid> itemIds)
     {
         return await dbContext.InventoryTransactionsItems
-            .Where(iti => iti.ParentId == null && iti.FullyConsumedAt == null && itemIds.Contains(iti.Id))
+            .Consumable()
+            .Where(iti => itemIds.Contains(iti.Id))
             .GroupJoin(
-                dbContext.InventoryTransactionsItems.Where(child => child.ParentId != null),
+                dbContext.InventoryTransactionsItems.Committed().Consumers(),
                 parent => parent.Id,
                 child => child.ParentId,
                 (parent, children) => new
@@ -24,20 +26,21 @@ public class InventoryQueryRepository(AppDbContext dbContext)
             .ToDictionaryAsync(x => x.Id, x => x.Remaining);
     }
 
-    public async Task<decimal?> GetRemainingInventoryForItems(Guid itemId)
+    public async Task<decimal> GetRemainingInventoryForItems(Guid itemId)
     {
         var map = await GetRemainingInventoryForItems([itemId]);
-        return map[itemId];
+        return map.GetValueOrDefault(itemId, 0);
     }
 
     public async Task<List<InventoryItemDto>> GetInventoryByCategory(Guid refrigeratorId, ProductCategory category)
     {
-        var items = await dbContext.InventoryTransactionsItems.Where(i =>
-                i.InventoryTransaction!.RefrigeratorId == refrigeratorId && i.ParentId == null &&
-                (i.Product!.Categories & category) == category && i.FullyConsumedAt == null
-            )
+        var items = await dbContext.InventoryTransactionsItems
+            .Consumable()
+            .ForRefrigerator(refrigeratorId)
+            .WithCategory(category)
             .Include(i => i.Product)
-            .Include(i => i.InventoryTransaction).Select(i => new InventoryItemDto
+            .Include(i => i.InventoryTransaction)
+            .Select(i => new InventoryItemDto
             {
                 ItemId = i.Id,
                 ProductId = i.ProductId,
@@ -69,9 +72,10 @@ public class InventoryQueryRepository(AppDbContext dbContext)
         var product = await dbContext.Products.FindAsync(productId);
         if (product == null) return null;
 
-        var batches = await dbContext.InventoryTransactionsItems.Where(i =>
-                i.ProductId == productId && i.ParentId == null &&
-                i.InventoryTransaction!.RefrigeratorId == refrigeratorId)
+        var batches = await dbContext.InventoryTransactionsItems
+            .Consumable()
+            .ForRefrigerator(refrigeratorId)
+            .Where(i => i.ProductId == productId)
             .Select(i => new InventoryBatchDto
             {
                 ItemId = i.Id,
@@ -79,8 +83,7 @@ public class InventoryQueryRepository(AppDbContext dbContext)
                 CreatedAt = i.CreatedAt,
                 RemainingQuantity = i.Quantity
             })
-            .Where(x => x.RemainingQuantity > 0)
-            .OrderByDescending(x => x.ExpirationDate)
+            .OrderByDescending(x => x.ItemId)
             .ToListAsync();
 
         var itemIds = batches.Select(i => i.ItemId);

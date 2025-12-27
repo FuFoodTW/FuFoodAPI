@@ -1,5 +1,6 @@
 using FuFood.Data;
 using FuFood.Models.Entities;
+using FuFood.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Repositories;
@@ -12,7 +13,7 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
         var transaction = new InventoryTransaction
         {
             RefrigeratorId = refrigerator.Id,
-            UserId = user.Id,
+            UserId = user.Id
         };
 
         dbContext.InventoryTransactions.Add(transaction);
@@ -32,6 +33,29 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
     {
         return await dbContext.InventoryTransactions.Where(t => t.RefrigeratorId == refrigeratorId)
             .OrderByDescending(t => t.CreatedAt).ToListAsync();
+    }
+
+    public async Task<InventoryTransaction?> GetConsumableTransaction(User user, Guid transactionId)
+    {
+        return await dbContext.InventoryTransactions
+            .Committed()
+            .ForUser(user)
+            .FirstOrDefaultAsync(t => t.Id == transactionId);
+    }
+
+    public async Task<InventoryTransaction?> GetPendingTransaction(User user, Guid transactionId)
+    {
+        return await dbContext.InventoryTransactions
+            .Pending()
+            .ForUser(user)
+            .FirstOrDefaultAsync(t => t.Id == transactionId);
+    }
+
+
+    public async Task DeleteTransaction(InventoryTransaction transaction)
+    {
+        dbContext.Remove(transaction);
+        await dbContext.SaveChangesAsync();
     }
 
     // 入庫詳細

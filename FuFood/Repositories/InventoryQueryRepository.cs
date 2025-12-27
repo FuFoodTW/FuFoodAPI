@@ -14,7 +14,7 @@ public class InventoryQueryRepository(AppDbContext dbContext)
             .Consumable()
             .Where(iti => itemIds.Contains(iti.Id))
             .GroupJoin(
-                dbContext.InventoryTransactionsItems.Where(child => child.ParentId != null),
+                dbContext.InventoryTransactionsItems.Committed().Consumers(),
                 parent => parent.Id,
                 child => child.ParentId,
                 (parent, children) => new

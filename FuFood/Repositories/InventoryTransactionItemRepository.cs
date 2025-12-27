@@ -67,28 +67,25 @@ public class InventoryTransactionItemRepository(AppDbContext dbContext, Inventor
             throw new InvalidOperationException(
                 $"The requested consumption quantity {quantity} is greater than the remaining inventory {remaining}.");
 
-        await dbContext.Database.BeginTransactionAsync();
-
         // 
         var items = await dbContext.InventoryTransactionsItems
             .FromSqlRaw(
                 """
-                insert into "InventoryTransactionItems" iti
+                insert into "InventoryTransactionsItems" AS iti
                 ("Id", "ParentId", "ProductId", "Quantity", "InventoryTransactionId", "CreatedAt", "UpdatedAt")
                 values (uuidv7(), {0}, {1}, {2}, {3}, now() at time zone 'utc', now() at time zone 'utc')
-                on conflict ("ParentId", "InventoryTransactionId")
-                do update set "Quantity" = "Quantity" + EXCLUDED."Quantity", "UpdatedAt" = EXCLUDED."UpdatedAt"
+                on conflict ("ParentId", "InventoryTransactionId") WHERE "ParentId" IS NOT NULL
+                do update set "Quantity" = iti."Quantity" + EXCLUDED."Quantity", "UpdatedAt" = EXCLUDED."UpdatedAt"
                 where ABS(iti."Quantity" + EXCLUDED."Quantity") <= {4}
-                returning iti.*;
+                returning *;
                 """,
                 parentItem.Id, parentItem.ProductId, -quantity, transaction.Id, remaining)
             .ToListAsync();
 
         var item = items.FirstOrDefault();
 
-        if (item != null) return items.First();
+        if (item != null) return item;
 
-        await dbContext.Database.RollbackTransactionAsync();
         throw new InvalidOperationException(
             $"The requested consumption quantity combined with existing items exceeds the remaining inventory {remaining}.");
     }

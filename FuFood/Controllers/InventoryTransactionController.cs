@@ -27,7 +27,7 @@ public class InventoryTransactionController(
     }
 
     [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/commit")]
-    public async Task<IActionResult> Commit(Guid transactionId)
+    public async Task<IActionResult> FinalizeTransaction(Guid transactionId)
     {
         var user = await HttpContext.GetCurrentUser();
 
@@ -45,9 +45,9 @@ public class InventoryTransactionController(
                 Data = transaction
             });
         }
-        catch (Exception e)
+        catch (InvalidOperationException e)
         {
-            return UnprocessableEntity(e);
+            return UnprocessableEntity(e.Message);
         }
     }
 
@@ -66,7 +66,7 @@ public class InventoryTransactionController(
         });
     }
 
-    // 詳細列表
+// 詳細列表
     [HttpGet("/api/v1/inventory_transactions/{transactionId:guid}")]
     public async Task<IActionResult> Detail(Guid transactionId)
     {
@@ -81,7 +81,7 @@ public class InventoryTransactionController(
         });
     }
 
-    // 消耗庫存
+// 消耗庫存
     [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/consume")]
     public async Task<IActionResult> Consume(
         Guid transactionId,
@@ -90,10 +90,10 @@ public class InventoryTransactionController(
         var user = await HttpContext.GetCurrentUser();
 
         var transaction = await inventoryTransactionRepository
-            .GetConsumableTransaction(user, transactionId);
+            .GetPendingTransaction(user, transactionId);
 
         if (transaction == null)
-            return NotFound("The requested transaction does not exist or is not in a consumable state");
+            return NotFound("No pending transaction found with the requested ID.");
 
         try
         {
@@ -105,7 +105,7 @@ public class InventoryTransactionController(
 
             return Ok(new { Data = result });
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             return UnprocessableEntity(ex.Message);
         }

@@ -60,23 +60,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "請輸入你的 JWT token"
-    });
-
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-    {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-    });
-});
+// Swagger 設定 - 必須保留 AddSwaggerGen 讓 SwaggerUI 可以運作
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -85,8 +70,42 @@ app.UseCors("FrontendAppPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+// 使用自定義 OpenAPI JSON 文件
+app.UseSwaggerUI(options =>
+{
+    options.RoutePrefix = "swagger";
+});
+
+// 覆寫預設的 swagger.json，提供自定義的 OpenAPI 文件
+app.MapGet("/swagger/v1/swagger.json", async context =>
+{
+    var jsonPath = Path.Combine(AppContext.BaseDirectory, "swagger.json");
+    if (File.Exists(jsonPath))
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.SendFileAsync(jsonPath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+    }
+}).AllowAnonymous();
+
+// 也保留 /api/openapi.json 作為備用
+app.MapGet("/api/openapi.json", async context =>
+{
+    var jsonPath = Path.Combine(AppContext.BaseDirectory, "swagger.json");
+    if (File.Exists(jsonPath))
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.SendFileAsync(jsonPath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+    }
+}).AllowAnonymous();
+
 app.MapOpenApi();
 
 if (app.Environment.IsProduction())

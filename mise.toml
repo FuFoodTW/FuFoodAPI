@@ -14,7 +14,17 @@ PGDATABASE = "fufood_dev"
 shell = "pwsh -Command"
 run = """
 cd ./FuFood/scripts/issue_access_token
-$value = go run .
+
+if (-not $IsWindows) {
+  $value = go run .
+} else {
+  $binary = "app.exe"
+  if (-not (Test-Path $binary)) {
+    go build -o $binary .
+  }
+  $value = ./app.exe
+}
+
 write-host $value
 $value | set-clipboard
 """

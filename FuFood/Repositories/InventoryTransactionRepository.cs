@@ -43,7 +43,7 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
             .FirstOrDefaultAsync(t => t.Id == transactionId);
     }
 
-    public async Task<InventoryTransaction?> GetDraftTransaction(User user, Guid transactionId)
+    public async Task<InventoryTransaction?> GetPendingTransaction(User user, Guid transactionId)
     {
         return await dbContext.InventoryTransactions
             .Pending()
@@ -51,33 +51,11 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
             .FirstOrDefaultAsync(t => t.Id == transactionId);
     }
 
-    // A transaction can only be finalized if it is a draft (has not been finalized yet)
-    // and if it contains any items (we do not accept empty transactions)
-    public async Task<bool> HasItems(InventoryTransaction transaction)
+
+    public async Task DeleteTransaction(InventoryTransaction transaction)
     {
-        return await dbContext.InventoryTransactionsItems
-            .AnyAsync(i => i.InventoryTransactionId == transaction.Id);
-    }
-
-    // // Calculate the total amount that the transaction intends to consume
-    // public async Task<bool> ValidateRemainingInventory(InventoryTransaction transaction)
-    // {
-    //     var requestedQuantities = await dbContext.InventoryTransactionsItems
-    //         .Consumers()
-    //         .ForTransaction(transaction.Id)
-    //         .Where()
-    //     var consumingItemIds = transaction.Items
-    // }
-
-    public async Task<InventoryTransaction> FinalizeTransaction(InventoryTransaction transaction)
-    {
-        if (transaction.CommittedAt != null)
-            throw new InvalidOperationException("The transaction has already been finalized!");
-
-        transaction.CommittedAt = DateTime.UtcNow;
-
+        dbContext.Remove(transaction);
         await dbContext.SaveChangesAsync();
-        return transaction;
     }
 
     // 入庫詳細

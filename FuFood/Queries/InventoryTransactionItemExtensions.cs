@@ -7,7 +7,7 @@ public static class InventoryTransactionItemExtensions
 {
     extension(IQueryable<InventoryTransactionItem> query)
     {
-        public IQueryable<InventoryTransactionItem> Finalized()
+        public IQueryable<InventoryTransactionItem> Committed()
         {
             return query.Where(i => i.InventoryTransaction!.CommittedAt != null);
         }
@@ -32,6 +32,11 @@ public static class InventoryTransactionItemExtensions
             return query.Where(i => i.InventoryTransactionId == transactionId);
         }
 
+        public IQueryable<InventoryTransactionItem> ForTransaction(InventoryTransaction transaction)
+        {
+            return query.ForTransaction(transaction.Id);
+        }
+
         public IQueryable<InventoryTransactionItem> WithCategory(ProductCategory filter)
         {
             return query.Where(i => i.Product != null && (i.Product.Categories & filter) == filter);
@@ -40,7 +45,7 @@ public static class InventoryTransactionItemExtensions
         public IQueryable<InventoryTransactionItem> Consumable()
         {
             return query
-                .Finalized()
+                .Committed()
                 .Parents()
                 .Where(i => i.FullyConsumedAt == null);
         }

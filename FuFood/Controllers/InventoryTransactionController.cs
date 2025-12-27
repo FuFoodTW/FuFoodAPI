@@ -31,9 +31,15 @@ public class InventoryTransactionController(
     {
         var user = await HttpContext.GetCurrentUser();
 
+        var transaction = await inventoryTransactionRepository.GetPendingTransaction(user, transactionId);
+        if (transaction == null)
+        {
+            return NotFound("No pending transaction found with the given ID.");
+        }
+
         try
         {
-            var transaction = await commitTransactionService.CommitTransaction(user, transactionId);
+            transaction = await commitTransactionService.CommitTransaction(user, transaction);
             return Ok(new
             {
                 Data = transaction
@@ -43,20 +49,6 @@ public class InventoryTransactionController(
         {
             return UnprocessableEntity(e);
         }
-
-        // var transaction = await inventoryTransactionRepository.GetDraftTransaction(user, transactionId);
-        // if (transaction == null) return NotFound();
-        //
-        // if (!await inventoryTransactionRepository.HasItems(transaction))
-        // {
-        //     return UnprocessableEntity("Only transactions with items can be finalized");
-        // }
-        //
-        // transaction = await inventoryTransactionRepository.FinalizeTransaction(transaction);
-        // return Ok(new
-        // {
-        //     Data = transaction
-        // });
     }
 
     // 簡易列表
@@ -117,5 +109,22 @@ public class InventoryTransactionController(
         {
             return UnprocessableEntity(ex.Message);
         }
+    }
+
+    [HttpDelete("/api/v1/inventory_transactions/{transactionId:guid}")]
+    public async Task<IActionResult> Delete(Guid transactionId)
+    {
+        var user = await HttpContext.GetCurrentUser();
+
+        var transaction = await inventoryTransactionRepository.GetPendingTransaction(user, transactionId);
+
+        if (transaction == null)
+        {
+            return NotFound("No pending transaction found with the requested ID.");
+        }
+
+        await inventoryTransactionRepository.DeleteTransaction(transaction);
+
+        return NoContent();
     }
 }

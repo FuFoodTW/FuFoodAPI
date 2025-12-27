@@ -1,13 +1,15 @@
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using FuFood.Models.Requests;
+using FuFood.Services;
 
 namespace FuFood.Controllers;
 
 public class InventoryTransactionController(
     RefrigeratorRepository refrigeratorRepository,
     InventoryTransactionRepository inventoryTransactionRepository,
-    InventoryTransactionItemRepository itemRepository) : Controller
+    InventoryTransactionItemRepository itemRepository,
+    CommitTransactionService commitTransactionService) : Controller
 {
     // 建立一筆交易
     [HttpPost("/api/v1/refrigerators/{refrigeratorId:guid}/inventory_transactions")]
@@ -24,23 +26,37 @@ public class InventoryTransactionController(
         });
     }
 
-    [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/finalize")]
-    public async Task<IActionResult> Finalize(Guid transactionId)
+    [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/commit")]
+    public async Task<IActionResult> Commit(Guid transactionId)
     {
         var user = await HttpContext.GetCurrentUser();
-        var transaction = await inventoryTransactionRepository.GetDraftTransaction(user, transactionId);
-        if (transaction == null) return NotFound();
 
-        if (!await inventoryTransactionRepository.HasItems(transaction))
+        try
         {
-            return UnprocessableEntity("Only transactions with items can be finalized");
+            var transaction = await commitTransactionService.CommitTransaction(user, transactionId);
+            return Ok(new
+            {
+                Data = transaction
+            });
+        }
+        catch (Exception e)
+        {
+            return UnprocessableEntity(e);
         }
 
-        transaction = await inventoryTransactionRepository.FinalizeTransaction(transaction);
-        return Ok(new
-        {
-            Data = transaction
-        });
+        // var transaction = await inventoryTransactionRepository.GetDraftTransaction(user, transactionId);
+        // if (transaction == null) return NotFound();
+        //
+        // if (!await inventoryTransactionRepository.HasItems(transaction))
+        // {
+        //     return UnprocessableEntity("Only transactions with items can be finalized");
+        // }
+        //
+        // transaction = await inventoryTransactionRepository.FinalizeTransaction(transaction);
+        // return Ok(new
+        // {
+        //     Data = transaction
+        // });
     }
 
     // 簡易列表

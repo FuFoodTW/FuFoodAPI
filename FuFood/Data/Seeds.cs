@@ -85,14 +85,14 @@ public static class Seeds
                     Id = storingTransactionId,
                     UserId = jo.Id,
                     RefrigeratorId = joFridge.Id,
-                    FinalizedAt = DateTime.UtcNow
+                    CommittedAt = DateTime.UtcNow
                 },
                 new InventoryTransaction
                 {
                     Id = consumingTransactionId,
                     UserId = jo.Id,
                     RefrigeratorId = joFridge.Id,
-                    FinalizedAt = DateTime.UtcNow
+                    CommittedAt = DateTime.UtcNow
                 }
             )
             .On(t => t.Id)
@@ -100,7 +100,7 @@ public static class Seeds
             {
                 RefrigeratorId = o.RefrigeratorId,
                 UserId = o.UserId,
-                FinalizedAt = n.FinalizedAt,
+                CommittedAt = n.CommittedAt,
                 CreatedAt = n.CreatedAt,
                 UpdatedAt = n.UpdatedAt
             })

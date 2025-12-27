@@ -9,7 +9,7 @@ public static class InventoryTransactionItemExtensions
     {
         public IQueryable<InventoryTransactionItem> Finalized()
         {
-            return query.Where(i => i.InventoryTransaction!.FinalizedAt != null);
+            return query.Where(i => i.InventoryTransaction!.CommittedAt != null);
         }
 
         public IQueryable<InventoryTransactionItem> Parents()

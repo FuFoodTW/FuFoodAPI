@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Models.Entities;
 
-[Index(nameof(FinalizedAt))]
+[Index(nameof(CommittedAt))]
 public class InventoryTransaction
 {
     [Key]
@@ -16,7 +16,7 @@ public class InventoryTransaction
     public virtual ICollection<InventoryTransactionItem> Items { get; set; } = []; // 一對多關聯
 
     // 交易是否草稿，如果這個時間為空那就是草稿
-    public DateTime? FinalizedAt { get; set; }
+    public DateTime? CommittedAt { get; set; }
 
     public required Guid RefrigeratorId { get; set; }
     public virtual Refrigerator? Refrigerator { get; set; }

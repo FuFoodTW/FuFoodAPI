@@ -38,7 +38,7 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
     public async Task<InventoryTransaction?> GetConsumableTransaction(User user, Guid transactionId)
     {
         return await dbContext.InventoryTransactions
-            .Finalized()
+            .Committed()
             .ForUser(user)
             .FirstOrDefaultAsync(t => t.Id == transactionId);
     }
@@ -46,7 +46,7 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
     public async Task<InventoryTransaction?> GetDraftTransaction(User user, Guid transactionId)
     {
         return await dbContext.InventoryTransactions
-            .Drafts()
+            .Pending()
             .ForUser(user)
             .FirstOrDefaultAsync(t => t.Id == transactionId);
     }
@@ -71,10 +71,10 @@ public class InventoryTransactionRepository(AppDbContext dbContext)
 
     public async Task<InventoryTransaction> FinalizeTransaction(InventoryTransaction transaction)
     {
-        if (transaction.FinalizedAt != null)
+        if (transaction.CommittedAt != null)
             throw new InvalidOperationException("The transaction has already been finalized!");
 
-        transaction.FinalizedAt = DateTime.UtcNow;
+        transaction.CommittedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync();
         return transaction;

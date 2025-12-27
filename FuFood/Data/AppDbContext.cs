@@ -22,6 +22,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .IsUnique()
             .HasFilter("\"IsDefault\" = true");
 
+        modelBuilder.Entity<InventoryTransactionItem>()
+            .HasIndex(r => new { r.ParentId, r.InventoryTransactionId })
+            .IsUnique()
+            .HasFilter("\"ParentId\" is not null");
+
         // Add check constraints to enforce data validity on the database level
         modelBuilder.Entity<InventoryTransactionItem>()
             .ToTable(t =>

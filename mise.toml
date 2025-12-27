@@ -3,6 +3,10 @@ go = "latest"
 
 [env]
 # ConnectionStrings__AppDbContext = "Host=localhost; Username=postgres; Password=postgres; Database=fufood_dev; Port=5432"
+PGPORT = "5487"
+PGUSER = "postgres"
+PGPASSWORD = "postgres"
+PGHOST = "localhost"
 PGDATABASE = "fufood_dev"
 
 [tasks.token]

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FuFood.Models.Entities;
 
 [Index(nameof(FullyConsumedAt))]
+[Index(nameof(ParentId), nameof(InventoryTransactionId))]
 public class InventoryTransactionItem
 {
     [Key]

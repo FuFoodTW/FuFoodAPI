@@ -1,5 +1,6 @@
 ﻿using FuFood.Data;
 using FuFood.Models.Entities;
+using FuFood.Queries;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,8 +55,9 @@ public class InventoryTransactionItemRepository(AppDbContext dbContext, Inventor
     {
         if (quantity <= 0) throw new InvalidOperationException("Quantity must be greater than 0");
 
-        var parentItem = await dbContext.InventoryTransactionsItems.Include(i => i.Product)
-            .FirstOrDefaultAsync(i => i.Id == inventoryItemId && i.ParentId == null && i.FullyConsumedAt == null);
+        var parentItem = await dbContext.InventoryTransactionsItems
+            .Consumable()
+            .FirstOrDefaultAsync(i => i.Id == inventoryItemId);
 
         if (parentItem == null) throw new Exception("Inventory item not found");
 
@@ -63,24 +65,31 @@ public class InventoryTransactionItemRepository(AppDbContext dbContext, Inventor
 
         if (quantity > remaining)
             throw new InvalidOperationException(
-                $"The requested consumption quantity {quantity} is greater than the remaining inventory {remaining}");
+                $"The requested consumption quantity {quantity} is greater than the remaining inventory {remaining}.");
 
-        var consumeItem = new InventoryTransactionItem
-        {
-            ParentId = parentItem.Id,
-            ProductId = parentItem.ProductId,
-            Quantity = -quantity,
-            ExpirationDate = parentItem.ExpirationDate,
-            InventoryTransactionId = transaction.Id
-        };
+        await dbContext.Database.BeginTransactionAsync();
 
-        dbContext.InventoryTransactionsItems.Add(consumeItem);
+        // 
+        var items = await dbContext.InventoryTransactionsItems
+            .FromSqlRaw(
+                """
+                insert into "InventoryTransactionItems" iti
+                ("Id", "ParentId", "ProductId", "Quantity", "InventoryTransactionId", "CreatedAt", "UpdatedAt")
+                values (uuidv7(), {0}, {1}, {2}, {3}, now() at time zone 'utc', now() at time zone 'utc')
+                on conflict ("ParentId", "InventoryTransactionId")
+                do update set "Quantity" = "Quantity" + EXCLUDED."Quantity", "UpdatedAt" = EXCLUDED."UpdatedAt"
+                where ABS(iti."Quantity" + EXCLUDED."Quantity") <= {4}
+                returning iti.*;
+                """,
+                parentItem.Id, parentItem.ProductId, -quantity, transaction.Id, remaining)
+            .ToListAsync();
 
-        // If the remaining quantity is the same as the requested quantity, the item can be marked as fully consumed
-        if (quantity == remaining) parentItem.FullyConsumedAt = DateTime.UtcNow;
+        var item = items.FirstOrDefault();
 
-        await dbContext.SaveChangesAsync();
+        if (item != null) return items.First();
 
-        return consumeItem;
+        await dbContext.Database.RollbackTransactionAsync();
+        throw new InvalidOperationException(
+            $"The requested consumption quantity combined with existing items exceeds the remaining inventory {remaining}.");
     }
 }

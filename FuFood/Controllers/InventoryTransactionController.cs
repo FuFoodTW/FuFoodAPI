@@ -15,12 +15,28 @@ public class InventoryTransactionController(
     {
         var user = await HttpContext.GetCurrentUser();
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, refrigeratorId);
-        if (refrigerator == null)
-        {
-            return NotFound();
-        }
+        if (refrigerator == null) return NotFound();
 
         var transaction = await inventoryTransactionRepository.CreateUserInventoryTransaction(user, refrigerator);
+        return Ok(new
+        {
+            Data = transaction
+        });
+    }
+
+    [HttpPost("/api/v1/inventory_transactions/{transactionId:guid}/finalize")]
+    public async Task<IActionResult> Finalize(Guid transactionId)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        var transaction = await inventoryTransactionRepository.GetDraftTransaction(user, transactionId);
+        if (transaction == null) return NotFound();
+
+        if (!await inventoryTransactionRepository.HasItems(transaction))
+        {
+            return UnprocessableEntity("Only transactions with items can be finalized");
+        }
+
+        transaction = await inventoryTransactionRepository.FinalizeTransaction(transaction);
         return Ok(new
         {
             Data = transaction
@@ -33,10 +49,7 @@ public class InventoryTransactionController(
     {
         var user = await HttpContext.GetCurrentUser();
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, refrigeratorId);
-        if (refrigerator == null)
-        {
-            return NotFound();
-        }
+        if (refrigerator == null) return NotFound();
 
         var transactions = await inventoryTransactionRepository.GetByRefrigerator(refrigeratorId);
         return Ok(new
@@ -51,10 +64,7 @@ public class InventoryTransactionController(
     {
         var user = await HttpContext.GetCurrentUser();
         var transaction = await inventoryTransactionRepository.GetUserInventoryTransaction(user, transactionId);
-        if (transaction == null)
-        {
-            return NotFound();
-        }
+        if (transaction == null) return NotFound();
 
         var detail = await inventoryTransactionRepository.GetByRefrigerator(transactionId);
         return Ok(new
@@ -72,10 +82,10 @@ public class InventoryTransactionController(
         var user = await HttpContext.GetCurrentUser();
 
         var transaction = await inventoryTransactionRepository
-            .GetUserInventoryTransaction(user, transactionId);
+            .GetConsumableTransaction(user, transactionId);
 
         if (transaction == null)
-            return NotFound("Transaction not found");
+            return NotFound("The requested transaction does not exist or is not in a consumable state");
 
         try
         {

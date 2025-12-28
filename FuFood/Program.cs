@@ -127,3 +127,7 @@ app.MapControllers().RequireAuthorization();
 app.MapSwagger();
 
 app.Run();
+
+public partial class Program
+{
+}

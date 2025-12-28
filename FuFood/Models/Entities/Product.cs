@@ -2,10 +2,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using FuFood.Models.Enums;
+using FuFood.Models.Interfaces;
 
 namespace FuFood.Models.Entities;
 
-public class Product
+public class Product : IHasTimestamp
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

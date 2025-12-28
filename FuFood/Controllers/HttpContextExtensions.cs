@@ -8,29 +8,31 @@ namespace FuFood.Controllers;
 
 public static class HttpContextExtensions
 {
-    public static Guid? CurrentUserId(this HttpContext context)
+    extension(HttpContext context)
     {
-        var maybeUuid = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(maybeUuid))
+        public Guid? CurrentUserId()
         {
-            return null;
+            var maybeUuid = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(maybeUuid))
+            {
+                return null;
+            }
+
+            return Guid.Parse(maybeUuid);
         }
 
-        return Guid.Parse(maybeUuid);
-    }
-
-    public static async Task<User> GetCurrentUser(this HttpContext context)
-    {
-        var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
-        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        if (string.IsNullOrEmpty(userId))
+        public async Task<User> GetCurrentUser()
         {
-            throw new InvalidOperationException("User ID not present in HttpContext");
-        }
+            var userId = context.CurrentUserId();
+            if (userId == null)
+            {
+                throw new InvalidOperationException("User ID not present in HttpContext");
+            }
 
-        var user = await userRepository.GetUserByIdAsNoTracking(Guid.Parse(userId));
-        return user!;
+            var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
+            var user = await userRepository.GetUserByIdAsNoTracking(userId.Value);
+            return user!;
+        }
     }
 }

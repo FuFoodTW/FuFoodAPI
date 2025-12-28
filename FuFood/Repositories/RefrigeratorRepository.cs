@@ -31,11 +31,6 @@ public class RefrigeratorRepository(AppDbContext dbContext)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public async Task<Refrigerator?> GetByQrCodeAsync(string qrCode)
-    {
-        return await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.QrCode == qrCode);
-    }
-
     public async Task<Refrigerator> Create(User user, Refrigerator refrigerator)
     {
         refrigerator.CreatedById = user.Id;
@@ -89,7 +84,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
         {
             RefrigeratorId = refrigeratorId,
             MemberId = userId,
-            JoinedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
         dbContext.RefrigeratorMembers.Add(member);
         await dbContext.SaveChangesAsync();

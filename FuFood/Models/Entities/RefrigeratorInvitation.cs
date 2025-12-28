@@ -4,17 +4,20 @@ using FuFood.Models.Interfaces;
 
 namespace FuFood.Models.Entities;
 
-public class RefrigeratorMember : IHasTimestamp
+public class RefrigeratorInvitation : IHasTimestamp
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    public Guid RefrigeratorId { get; set; }
-    public virtual Refrigerator? Refrigerator { get; set; }
+    public byte[] TokenHash { get; set; } = null!;
+    public int ViewCount { get; set; } = 0;
 
-    public Guid MemberId { get; set; }
-    public virtual User? Member { get; set; }
+    public Guid RefrigeratorId { get; set; }
+    public Refrigerator? Refrigerator { get; set; }
+
+    public Guid CreatorId { get; set; }
+    public User? Creator { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

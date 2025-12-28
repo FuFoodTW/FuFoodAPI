@@ -1,5 +1,6 @@
 ﻿using FuFood.Models;
 using FuFood.Models.Entities;
+using FuFood.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Data;
@@ -13,13 +14,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<InventoryTransactionItem> InventoryTransactionsItems { get; set; }
     public DbSet<RefrigeratorMember> RefrigeratorMembers { get; set; }
+    public DbSet<RefrigeratorInvitation> RefrigeratorInvitations { get; set; }
+
+    public override int SaveChanges()
+    {
+        foreach (var entry in ChangeTracker.Entries<IHasTimestamp>())
+        {
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChanges();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<RefrigeratorMember>()
-            .HasKey(rm => new { rm.RefrigeratorId, rm.MemberId });
 
         modelBuilder.Entity<RefrigeratorMember>()
             .HasOne(rm => rm.Refrigerator)

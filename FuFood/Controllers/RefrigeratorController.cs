@@ -52,14 +52,12 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
             Name = request.Name,
             Colour = request.Colour,
             CreatedById = user.Id,
-            QrCode = Guid.NewGuid().ToString("N")[..8].ToUpper()
         };
 
         // 透過導覽屬性自動關聯
         refrigerator.Members.Add(new RefrigeratorMember
         {
-            MemberId = user.Id,
-            JoinedAt = DateTime.UtcNow
+            MemberId = user.Id
         });
 
         var result = await repository.Create(user, refrigerator);
@@ -68,20 +66,6 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         {
             Data = result
         });
-    }
-
-    [HttpGet("{id:guid}/qrcode")]
-    public async Task<IActionResult> GetQrCode(Guid id)
-    {
-        var user = await HttpContext.GetCurrentUser();
-        var refrigerator = await repository.GetByIdAsync(id);
-        
-        if (refrigerator == null || !await repository.IsMemberAsync(id, user.Id))
-        {
-            return NotFound();
-        }
-
-        return Ok(new { Data = refrigerator.QrCode });
     }
 
     [HttpPost("join")]
@@ -123,7 +107,8 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
             await service.RemoveMemberAsync(user, id, memberId);
             return Ok(new { Message = "成功移除成員" });
         }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException or KeyNotFoundException)
+        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException
+                                       or KeyNotFoundException)
         {
             return BadRequest(new { Message = ex.Message });
         }

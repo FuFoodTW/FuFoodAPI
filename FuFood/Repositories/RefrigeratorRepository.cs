@@ -32,7 +32,6 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     public async Task<Refrigerator?> Update(User user, Refrigerator refrigerator, string name, string? colour)
     {
         refrigerator.Name = name;
-        refrigerator.Colour = colour;
         refrigerator.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync();

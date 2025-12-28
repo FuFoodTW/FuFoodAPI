@@ -1,21 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FuFood.Models.Enums;
 
 namespace FuFood.Models.Entities;
 
-public class Refrigerator
+public class ShoppingListItem
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    [StringLength(100)] public required string Name { get; set; }
+    public required string Name { get; set; }
 
-    public required Guid CreatedById { get; set; }
-    public virtual User? CreatedBy { get; set; }
+    public decimal Quantity { get; set; } = 1;
+
+    public UnitType Unit { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public bool IsDefault { get; set; } = false;
+    public required Guid CreatorId { get; set; }
+    public User? User { get; set; }
 }

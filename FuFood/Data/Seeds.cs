@@ -40,10 +40,10 @@ public static class Seeds
         // Create a default refrigerator for all users that don't have one yet
         await dbContext.Database.ExecuteSqlRawAsync(
             """
-            insert into "Refrigerators" ("Id", "Name", "Colour", "CreatedById", "IsDefault", "CreatedAt", "UpdatedAt")
+            insert into "Refrigerators" ("Id", "Name", "Colour", "OwnerId", "IsDefault", "CreatedAt", "UpdatedAt")
             select uuidv7(), '我的冰箱', 'blue', u."Id", true, now() at time zone 'utc', now() at time zone 'utc'
             from "Users" u
-            left join "Refrigerators" r on r."CreatedById" = u."Id" and r."IsDefault" = true
+            left join "Refrigerators" r on r."OwnerId" = u."Id" and r."IsDefault" = true
             where r."Id" IS NULL;
             """);
 

@@ -41,6 +41,7 @@ builder.Services.AddScoped<InventoryTransactionRepository>();
 builder.Services.AddScoped<InventoryTransactionItemRepository>();
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<InventoryQueryRepository>();
+builder.Services.AddScoped<RefrigeratorInvitationRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();
@@ -49,6 +50,7 @@ builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<RefrigeratorService>();
 builder.Services.AddScoped<CommitTransactionService>();
+builder.Services.AddScoped<RefrigeratorInvitationService>();
 
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });
@@ -93,36 +95,6 @@ app.UseAuthorization();
 // 使用自定義 OpenAPI JSON 文件
 app.UseSwaggerUI(options => { options.RoutePrefix = "swagger"; });
 
-// 覆寫預設的 swagger.json，提供自定義的 OpenAPI 文件
-app.MapGet("/swagger/v1/swagger.json", async context =>
-{
-    var jsonPath = Path.Combine(AppContext.BaseDirectory, "swagger.json");
-    if (File.Exists(jsonPath))
-    {
-        context.Response.ContentType = "application/json";
-        await context.Response.SendFileAsync(jsonPath);
-    }
-    else
-    {
-        context.Response.StatusCode = 404;
-    }
-}).AllowAnonymous();
-
-// 也保留 /api/openapi.json 作為備用
-app.MapGet("/api/openapi.json", async context =>
-{
-    var jsonPath = Path.Combine(AppContext.BaseDirectory, "swagger.json");
-    if (File.Exists(jsonPath))
-    {
-        context.Response.ContentType = "application/json";
-        await context.Response.SendFileAsync(jsonPath);
-    }
-    else
-    {
-        context.Response.StatusCode = 404;
-    }
-}).AllowAnonymous();
-
 app.MapOpenApi();
 
 if (app.Environment.IsProduction())
@@ -143,6 +115,13 @@ if (args.Contains("seed"))
 
     Environment.Exit(0);
 }
+
+_ = Task.Run(async () =>
+{
+    using var scope = app.Services.CreateScope();
+    var invitationRepository = scope.ServiceProvider.GetRequiredService<RefrigeratorInvitationRepository>();
+    await invitationRepository.Vacuum();
+});
 
 app.MapControllers().RequireAuthorization();
 app.MapSwagger();

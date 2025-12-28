@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using FuFood.Models.Interfaces;
 
 namespace FuFood.Models.Entities;
 
-public class Refrigerator : IHasTimestamp
+public sealed class Refrigerator : IHasTimestamp
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -14,7 +15,7 @@ public class Refrigerator : IHasTimestamp
     [StringLength(30)] public string? Colour { get; set; }
 
     public required Guid OwnerId { get; set; }
-    public virtual User? Owner { get; set; }
+    [JsonIgnore] public User? Owner { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -22,5 +23,5 @@ public class Refrigerator : IHasTimestamp
 
     public bool IsDefault { get; set; } = false;
 
-    public virtual ICollection<RefrigeratorMember> Members { get; set; } = new List<RefrigeratorMember>();
+    public ICollection<RefrigeratorMember> Members { get; set; } = null!;
 }

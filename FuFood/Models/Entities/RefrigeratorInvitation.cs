@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FuFood.Models.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace FuFood.Models.Entities;
 
@@ -10,7 +11,9 @@ public class RefrigeratorInvitation : IHasTimestamp
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    public byte[] TokenHash { get; set; } = null!;
+    [NotMapped] public string? Token { get; set; }
+    [JsonIgnore] public byte[] TokenHash { get; set; } = null!;
+
     public int ViewCount { get; set; } = 0;
 
     public Guid RefrigeratorId { get; set; }

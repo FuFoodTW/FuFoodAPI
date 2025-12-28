@@ -17,8 +17,8 @@ public class User : IHasTimestamp
     [StringLength(255)] public required string Name { get; set; }
     public string? ProfilePictureUrl { get; set; }
 
-    public FuFood.Models.Enums.SubscriptionTier SubscriptionTier { get; set; } =
-        FuFood.Models.Enums.SubscriptionTier.Free;
+    public Enums.SubscriptionTier SubscriptionTier { get; set; } =
+        Enums.SubscriptionTier.Free;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

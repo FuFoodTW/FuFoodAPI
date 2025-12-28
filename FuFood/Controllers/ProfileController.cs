@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FuFood.Controllers;
 
-public class ProfileController(UserRepository userRepository) : Controller
+public class ProfileController : Controller
 {
     [HttpGet("/api/v1/profile")]
     public async Task<IActionResult> Show()

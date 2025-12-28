@@ -1,6 +1,20 @@
-@FuFood_HostAddress = http://localhost:5272
+@FuFood_HostAddress = http://localhost:3000
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTlhZjgwOS03MjI1LTdkM2ItYjhmNC03NzBlMmM3NDBlNjgiLCJpYXQiOjE3NjY4MjUzMzQsImV4cCI6MTc2NjkxMTczNH0.MYtVf1EKkwEMd0hL6VQ7oKvpBKIIzs_wa24dYAXRIcc
 
-GET {{FuFood_HostAddress}}/weatherforecast/
-Accept: application/json
+### List Refrigerators
+GET {{FuFood_HostAddress}}/api/v1/refrigerators
+Authorization: Bearer {{token}}
 
-###
+### Get Profile
+GET {{FuFood_HostAddress}}/api/v1/profile
+Authorization: Bearer {{token}}
+
+### Create Refrigerator
+POST {{FuFood_HostAddress}}/api/v1/refrigerators
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "測試冰箱",
+  "colour": "Red"
+}

@@ -11,7 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 // 添加 DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"),
-        o => { o.MapEnum<UnitType>("product_unit"); }));
+        o =>
+        {
+            o.MapEnum<UnitType>("product_unit");
+            o.MapEnum<SubscriptionTier>("subscription_tier");
+        }));
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -37,13 +41,16 @@ builder.Services.AddScoped<InventoryTransactionRepository>();
 builder.Services.AddScoped<InventoryTransactionItemRepository>();
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<InventoryQueryRepository>();
+builder.Services.AddScoped<RefrigeratorInvitationRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();
 builder.Services.AddSingleton<CryptoService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<RefrigeratorService>();
 builder.Services.AddScoped<CommitTransactionService>();
+builder.Services.AddScoped<RefrigeratorInvitationService>();
 
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });
@@ -85,8 +92,9 @@ app.UseCors("FrontendAppPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+// 使用自定義 OpenAPI JSON 文件
+app.UseSwaggerUI(options => { options.RoutePrefix = "swagger"; });
+
 app.MapOpenApi();
 
 if (app.Environment.IsProduction())
@@ -108,7 +116,18 @@ if (args.Contains("seed"))
     Environment.Exit(0);
 }
 
+_ = Task.Run(async () =>
+{
+    using var scope = app.Services.CreateScope();
+    var invitationRepository = scope.ServiceProvider.GetRequiredService<RefrigeratorInvitationRepository>();
+    await invitationRepository.Vacuum();
+});
+
 app.MapControllers().RequireAuthorization();
 app.MapSwagger();
 
 app.Run();
+
+public partial class Program
+{
+}

@@ -9,6 +9,8 @@
         <EnableHotReload>true</EnableHotReload>
         <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
         <Features>InterceptorsPreview</Features>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,6 +36,12 @@
     <ItemGroup>
         <Folder Include="Models\Dtos\"/>
         <Folder Include="Models\Responses\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="swagger.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

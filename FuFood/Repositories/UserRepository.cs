@@ -27,11 +27,20 @@ public class UserRepository(AppDbContext db)
         var defaultRefrigerator = new Refrigerator
         {
             Name = "我的冰箱",
-            CreatedById = user.Id,
+            OwnerId = user.Id,
             IsDefault = true
         };
 
         db.Refrigerators.Add(defaultRefrigerator);
+
+        // 建立擁有者為正式成員
+        var member = new RefrigeratorMember
+        {
+            RefrigeratorId = defaultRefrigerator.Id,
+            MemberId = user.Id,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.RefrigeratorMembers.Add(member);
 
         await db.SaveChangesAsync();
 
@@ -41,5 +50,10 @@ public class UserRepository(AppDbContext db)
     public async Task<User?> GetUserById(Guid id)
     {
         return await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+    }
+
+    public async Task<User?> GetUserByIdAsNoTracking(Guid id)
+    {
+        return await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
     }
 }

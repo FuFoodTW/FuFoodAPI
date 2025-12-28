@@ -1,0 +1,1204 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "FuFood API",
+        "version": "1.0.0",
+        "description": "富食品冰箱管理系統 API - 支援冰箱群組管理、庫存追蹤與成員協作"
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "paths": {
+        "/api/v1/refrigerators": {
+            "get": {
+                "summary": "列出所有冰箱群組",
+                "description": "取得目前使用者加入的所有冰箱群組（包含自己建立的）",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得冰箱列表",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Refrigerator"
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": "019b30a4-6072-7ba1-8074-753094405f5d",
+                                            "name": "我的冰箱",
+                                            "colour": "blue",
+                                            "qrCode": "ABC12345",
+                                            "isDefault": true,
+                                            "createdById": "019af809-7225-7d3b-b8f4-770e2c740e68"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未授權，請先登入",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "未授權，請先登入"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "建立新冰箱",
+                "description": "建立新的冰箱群組，建立者自動成為擁有者與成員",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefrigeratorCreateRequest"
+                            },
+                            "example": {
+                                "name": "家庭冰箱",
+                                "colour": "green"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "冰箱建立成功",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Refrigerator"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "019b30a4-6072-7ba1-8074-753094405f5d",
+                                        "name": "家庭冰箱",
+                                        "colour": "green",
+                                        "qrCode": "XYZ98765",
+                                        "isDefault": false
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "請求參數錯誤",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "名稱長度必須介於 1~10 個字"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未授權，請先登入",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{id}": {
+            "get": {
+                "summary": "取得單一冰箱資訊",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "冰箱 ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得冰箱資訊",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Refrigerator"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "找不到該冰箱或您沒有權限查看"
+                    }
+                }
+            },
+            "put": {
+                "summary": "修改冰箱名稱",
+                "description": "修改冰箱名稱（每 24 小時限一次，名稱長度 1~10 字）",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefrigeratorUpdateRequest"
+                            },
+                            "example": {
+                                "name": "新冰箱名稱"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "成功更新冰箱名稱",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Refrigerator"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "更新失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "修改群組名稱每 24 小時限一次"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "刪除冰箱",
+                "description": "刪除冰箱（預設冰箱不可刪除）",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "成功刪除冰箱"
+                    },
+                    "400": {
+                        "description": "刪除失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "預設冰箱不可刪除"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{id}/qrcode": {
+            "get": {
+                "summary": "取得冰箱邀請 QR Code",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得 QR Code",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": "ABC12345"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "找不到該冰箱或您不是成員"
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/join": {
+            "post": {
+                "summary": "透過 QR Code 加入冰箱",
+                "description": "人數限制：Free 版 3 人，Pro 版 5 人",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefrigeratorJoinRequest"
+                            },
+                            "example": {
+                                "qrCode": "ABC12345"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "成功加入冰箱",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "成功加入冰箱"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "加入失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "該冰箱成員人數已達上限"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{id}/leave": {
+            "post": {
+                "summary": "退出冰箱群組",
+                "description": "擁有者退出時必須指定新擁有者（預設冰箱擁有者不可退出）",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefrigeratorLeaveRequest"
+                            },
+                            "examples": {
+                                "一般成員退出": {
+                                    "value": {}
+                                },
+                                "擁有者轉移": {
+                                    "value": {
+                                        "newOwnerId": "019af809-7225-7d3b-b8f4-770e2c740e68"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "成功退出冰箱",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "成功退出冰箱"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "退出失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "預設冰箱的擁有者不可移除自己"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{id}/members/{memberId}": {
+            "delete": {
+                "summary": "移除冰箱成員",
+                "description": "只有擁有者可以移除其他成員",
+                "tags": [
+                    "冰箱群組"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "冰箱 ID"
+                    },
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "要移除的成員 ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功移除成員",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "成功移除成員"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "移除失敗",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "message": "只有擁有者可以移除成員"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{refrigeratorId}/inventory": {
+            "get": {
+                "summary": "取得冰箱庫存列表",
+                "tags": [
+                    "庫存查詢"
+                ],
+                "parameters": [
+                    {
+                        "name": "refrigeratorId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "商品分類篩選"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得庫存列表",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": [
+                                        {
+                                            "productId": "019b5600-1111-748d-966b-c16cd0d74c10",
+                                            "productName": "鮮奶",
+                                            "totalQuantity": 3,
+                                            "unit": "Milliliter",
+                                            "nearestExpirationDate": "2025-12-31T00:00:00Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "找不到該冰箱"
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{refrigeratorId}/inventory_transactions": {
+            "get": {
+                "summary": "列出冰箱交易記錄",
+                "tags": [
+                    "庫存交易"
+                ],
+                "parameters": [
+                    {
+                        "name": "refrigeratorId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得交易列表",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": "019b5610-1a1b-748d-966b-c16cd0d74c16",
+                                            "refrigeratorId": "019b30a4-6072-7ba1-8074-753094405f5d",
+                                            "createdAt": "2025-12-27T10:00:00Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "建立庫存交易",
+                "tags": [
+                    "庫存交易"
+                ],
+                "parameters": [
+                    {
+                        "name": "refrigeratorId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功建立交易",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": {
+                                        "id": "019b5610-1a1b-748d-966b-c16cd0d74c16",
+                                        "refrigeratorId": "019b30a4-6072-7ba1-8074-753094405f5d",
+                                        "userId": "019af809-7225-7d3b-b8f4-770e2c740e68",
+                                        "createdAt": "2025-12-27T10:00:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory_transactions/{transactionId}": {
+            "get": {
+                "summary": "取得交易詳情",
+                "tags": [
+                    "庫存交易"
+                ],
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得交易詳情",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": {
+                                        "id": "019b5610-1a1b-748d-966b-c16cd0d74c16",
+                                        "items": [
+                                            {
+                                                "id": "019b5611-2222-748d-966b-c16cd0d74c17",
+                                                "productName": "牛奶",
+                                                "quantity": 2,
+                                                "expirationDate": "2025-12-31"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory_transactions/{transactionId}/items": {
+            "post": {
+                "summary": "新增庫存項目",
+                "description": "在交易中新增入庫項目",
+                "tags": [
+                    "庫存交易"
+                ],
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InventoryTransactionItemCreateRequest"
+                            },
+                            "examples": {
+                                "使用既有商品": {
+                                    "value": {
+                                        "productId": "019b5600-1111-748d-966b-c16cd0d74c10",
+                                        "quantity": 2,
+                                        "expirationDate": "2025-12-31T00:00:00Z"
+                                    }
+                                },
+                                "建立新商品": {
+                                    "value": {
+                                        "quantity": 1,
+                                        "expirationDate": "2025-12-31T00:00:00Z",
+                                        "productParams": {
+                                            "name": "鮮奶",
+                                            "quantity": 1000,
+                                            "unit": "Milliliter",
+                                            "categories": "Dairy"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "成功新增項目",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": {
+                                        "id": "019b5611-3333-748d-966b-c16cd0d74c18",
+                                        "productId": "019b5600-1111-748d-966b-c16cd0d74c10",
+                                        "quantity": 2,
+                                        "expirationDate": "2025-12-31T00:00:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "建立失敗",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Invalid product ID"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/inventory_transactions/{transactionId}/consume": {
+            "post": {
+                "summary": "消耗庫存",
+                "tags": [
+                    "庫存交易"
+                ],
+                "parameters": [
+                    {
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InventoryConsumeRequest"
+                            },
+                            "example": {
+                                "inventoryItemId": "019b5611-2222-748d-966b-c16cd0d74c17",
+                                "quantity": 1
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "成功消耗庫存",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": {
+                                        "id": "019b5611-2222-748d-966b-c16cd0d74c17",
+                                        "remainingQuantity": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "消耗失敗",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "庫存數量不足"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{refrigeratorId}/products": {
+            "get": {
+                "summary": "取得冰箱商品列表",
+                "tags": [
+                    "商品查詢"
+                ],
+                "parameters": [
+                    {
+                        "name": "refrigeratorId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "categories",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "商品分類篩選"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得商品列表",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": "019b5600-1111-748d-966b-c16cd0d74c10",
+                                            "name": "鮮奶",
+                                            "quantity": 1000,
+                                            "unit": "Milliliter",
+                                            "categories": "Dairy"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/refrigerators/{refrigeratorId}/products/categories": {
+            "get": {
+                "summary": "取得商品分類統計",
+                "tags": [
+                    "商品查詢"
+                ],
+                "parameters": [
+                    {
+                        "name": "refrigeratorId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得分類列表",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": [
+                                        {
+                                            "category": "Dairy",
+                                            "count": 5
+                                        },
+                                        {
+                                            "category": "Vegetable",
+                                            "count": 12
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/profile": {
+            "get": {
+                "summary": "取得目前使用者資料",
+                "tags": [
+                    "使用者"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功取得使用者資料",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "019af809-7225-7d3b-b8f4-770e2c740e68",
+                                        "lineId": "U78d1bb86f8410a52d375306295c06503",
+                                        "name": "王小明",
+                                        "profilePictureUrl": "https://profile.line.me/...",
+                                        "subscriptionType": "Free",
+                                        "createdAt": "2025-12-07T08:59:19Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未授權，請先登入"
+                    }
+                }
+            }
+        },
+        "/api/v1/session": {
+            "delete": {
+                "summary": "登出",
+                "description": "撤銷 Access Token 並清除 Cookie",
+                "tags": [
+                    "使用者"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "登出成功"
+                    }
+                }
+            }
+        },
+        "/oauth/line/init": {
+            "get": {
+                "summary": "初始化 LINE 登入",
+                "description": "產生 state 並導向 LINE 登入頁面",
+                "tags": [
+                    "OAuth"
+                ],
+                "responses": {
+                    "302": {
+                        "description": "重新導向至 LINE 登入頁面"
+                    }
+                }
+            }
+        },
+        "/oauth/line/callback": {
+            "get": {
+                "summary": "LINE 登入回調",
+                "description": "處理 LINE 登入成功後的回調",
+                "tags": [
+                    "OAuth"
+                ],
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "登入成功"
+                    },
+                    "400": {
+                        "description": "State 驗證失敗"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Refrigerator": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "我的冰箱"
+                    },
+                    "colour": {
+                        "type": "string",
+                        "example": "blue"
+                    },
+                    "qrCode": {
+                        "type": "string",
+                        "example": "ABC12345"
+                    },
+                    "isDefault": {
+                        "type": "boolean"
+                    },
+                    "createdById": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "RefrigeratorCreateRequest": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 10,
+                        "example": "家庭冰箱"
+                    },
+                    "colour": {
+                        "type": "string",
+                        "example": "green"
+                    }
+                }
+            },
+            "RefrigeratorUpdateRequest": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 10,
+                        "example": "新冰箱名稱"
+                    }
+                }
+            },
+            "RefrigeratorJoinRequest": {
+                "type": "object",
+                "required": [
+                    "qrCode"
+                ],
+                "properties": {
+                    "qrCode": {
+                        "type": "string",
+                        "example": "ABC12345"
+                    }
+                }
+            },
+            "RefrigeratorLeaveRequest": {
+                "type": "object",
+                "properties": {
+                    "newOwnerId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "擁有者退出時須指定新擁有者"
+                    }
+                }
+            },
+            "InventoryTransactionItemCreateRequest": {
+                "type": "object",
+                "required": [
+                    "quantity"
+                ],
+                "properties": {
+                    "productId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "expirationDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "productParams": {
+                        "$ref": "#/components/schemas/ProductParams"
+                    }
+                }
+            },
+            "ProductParams": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "number"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "categories": {
+                        "type": "string"
+                    }
+                }
+            },
+            "InventoryConsumeRequest": {
+                "type": "object",
+                "required": [
+                    "inventoryItemId",
+                    "quantity"
+                ],
+                "properties": {
+                    "inventoryItemId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "lineId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "profilePictureUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "subscriptionType": {
+                        "type": "string",
+                        "enum": [
+                            "Free",
+                            "Pro"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "冰箱群組",
+            "description": "冰箱群組管理相關 API"
+        },
+        {
+            "name": "庫存查詢",
+            "description": "庫存查詢相關 API"
+        },
+        {
+            "name": "庫存交易",
+            "description": "入庫、消耗交易相關 API"
+        },
+        {
+            "name": "商品查詢",
+            "description": "商品資料查詢相關 API"
+        },
+        {
+            "name": "使用者",
+            "description": "使用者資料與登出 API"
+        },
+        {
+            "name": "OAuth",
+            "description": "LINE OAuth 登入相關 API"
+        }
+    ]
+}

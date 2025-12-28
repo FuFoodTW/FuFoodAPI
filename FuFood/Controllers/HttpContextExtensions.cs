@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using FuFood.Models.Entities;
 using FuFood.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FuFood.Controllers;
 
@@ -22,14 +24,14 @@ public static class HttpContextExtensions
 
         public async Task<User> GetCurrentUser()
         {
-            var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
             var userId = context.CurrentUserId();
             if (userId == null)
             {
-               throw new InvalidOperationException("User ID not present in HttpContext");
+                throw new InvalidOperationException("User ID not present in HttpContext");
             }
 
-            var user =  await userRepository.GetUserById(userId.Value);
+            var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
+            var user = await userRepository.GetUserByIdAsNoTracking(userId.Value);
             return user!;
         }
     }

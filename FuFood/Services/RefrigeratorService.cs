@@ -6,9 +6,6 @@ namespace FuFood.Services;
 
 public class RefrigeratorService(RefrigeratorRepository repository, UserRepository userRepository)
 {
-    private const int FreeSubscriptionLimit = 3;
-    private const int ProSubscriptionLimit = 5;
-
     public async Task UpdateNameAsync(User user, Guid refrigeratorId, string newName)
     {
         if (newName.Length < 1 || newName.Length > 10)

@@ -27,7 +27,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     public async Task<Refrigerator?> GetWithMembersByIdAsync(Guid id)
     {
         return await dbContext.Refrigerators
-            .Include(r => r.Members)
+            .Include(r => r.Memberships)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
@@ -68,36 +68,36 @@ public class RefrigeratorRepository(AppDbContext dbContext)
 
     public async Task<bool> IsMemberAsync(Guid refrigeratorId, Guid userId)
     {
-        return await dbContext.RefrigeratorMembers
+        return await dbContext.RefrigeratorMemberships
             .AnyAsync(rm => rm.RefrigeratorId == refrigeratorId && rm.MemberId == userId);
     }
 
     public async Task<int> GetMemberCountAsync(Guid refrigeratorId)
     {
-        return await dbContext.RefrigeratorMembers
+        return await dbContext.RefrigeratorMemberships
             .CountAsync(rm => rm.RefrigeratorId == refrigeratorId);
     }
 
     public async Task AddMemberAsync(Guid refrigeratorId, Guid userId)
     {
-        var member = new RefrigeratorMember
+        var member = new RefrigeratorMembership
         {
             RefrigeratorId = refrigeratorId,
             MemberId = userId,
             CreatedAt = DateTime.UtcNow
         };
-        dbContext.RefrigeratorMembers.Add(member);
+        dbContext.RefrigeratorMemberships.Add(member);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task<bool> RemoveMemberAsync(Guid refrigeratorId, Guid userId)
     {
-        var member = await dbContext.RefrigeratorMembers
+        var member = await dbContext.RefrigeratorMemberships
             .FirstOrDefaultAsync(rm => rm.RefrigeratorId == refrigeratorId && rm.MemberId == userId);
 
         if (member == null) return false;
 
-        dbContext.RefrigeratorMembers.Remove(member);
+        dbContext.RefrigeratorMemberships.Remove(member);
         await dbContext.SaveChangesAsync();
         return true;
     }

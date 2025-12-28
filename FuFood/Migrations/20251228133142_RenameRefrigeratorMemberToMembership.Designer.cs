@@ -4,6 +4,7 @@ using FuFood.Data;
 using FuFood.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FuFood.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251228133142_RenameRefrigeratorMemberToMembership")]
+    partial class RenameRefrigeratorMemberToMembership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,7 +56,7 @@ namespace FuFood.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InventoryTransactions", (string)null);
+                    b.ToTable("InventoryTransactions");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransactionItem", b =>
@@ -101,7 +104,7 @@ namespace FuFood.Migrations
                         .IsUnique()
                         .HasFilter("\"ParentId\" is not null");
 
-                    b.ToTable("InventoryTransactionsItems", null, t =>
+                    b.ToTable("InventoryTransactionsItems", t =>
                         {
                             t.HasCheckConstraint("item_expiration_date_check", "\"ParentId\" is not null or \"ExpirationDate\" is not null");
 
@@ -136,7 +139,7 @@ namespace FuFood.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.Refrigerator", b =>
@@ -174,7 +177,7 @@ namespace FuFood.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDefault\" = true");
 
-                    b.ToTable("Refrigerators", (string)null);
+                    b.ToTable("Refrigerators");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorInvitation", b =>
@@ -210,7 +213,7 @@ namespace FuFood.Migrations
 
                     b.HasIndex("RefrigeratorId");
 
-                    b.ToTable("RefrigeratorInvitations", (string)null);
+                    b.ToTable("RefrigeratorInvitations");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMembership", b =>
@@ -237,7 +240,7 @@ namespace FuFood.Migrations
                     b.HasIndex("RefrigeratorId", "MemberId")
                         .IsUnique();
 
-                    b.ToTable("RefrigeratorMemberships", (string)null);
+                    b.ToTable("RefrigeratorMemberships");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.User", b =>
@@ -272,7 +275,7 @@ namespace FuFood.Migrations
                     b.HasIndex("LineId")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("FuFood.Models.RevokedAccessToken", b =>
@@ -297,7 +300,7 @@ namespace FuFood.Migrations
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
-                    b.ToTable("RevokedAccessTokens", (string)null);
+                    b.ToTable("RevokedAccessTokens");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransaction", b =>

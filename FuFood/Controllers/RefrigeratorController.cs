@@ -54,7 +54,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         };
 
         // 透過導覽屬性自動關聯
-        refrigerator.Members.Add(new RefrigeratorMember
+        refrigerator.Memberships.Add(new RefrigeratorMembership
         {
             MemberId = user.Id
         });

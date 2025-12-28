@@ -9,7 +9,7 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
     private const int FreeSubscriptionLimit = 3;
     private const int ProSubscriptionLimit = 5;
 
-    public async Task<RefrigeratorMember> CreateFromInvitation(User user, RefrigeratorInvitation invitation)
+    public async Task<RefrigeratorMembership> CreateFromInvitation(User user, RefrigeratorInvitation invitation)
     {
         var freeCapacity = await CalculateRemainingMemberCapacity(invitation.RefrigeratorId);
         if (freeCapacity <= 0)
@@ -23,7 +23,7 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
             throw new InvalidOperationException("You already have access to this refrigerator");
         }
 
-        var membership = new RefrigeratorMember
+        var membership = new RefrigeratorMembership
         {
             RefrigeratorId = invitation.RefrigeratorId,
             MemberId = user.Id,

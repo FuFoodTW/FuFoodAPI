@@ -34,13 +34,13 @@ public class UserRepository(AppDbContext db)
         db.Refrigerators.Add(defaultRefrigerator);
 
         // 建立擁有者為正式成員
-        var member = new RefrigeratorMember
+        var member = new RefrigeratorMembership
         {
             RefrigeratorId = defaultRefrigerator.Id,
             MemberId = user.Id,
             CreatedAt = DateTime.UtcNow
         };
-        db.RefrigeratorMembers.Add(member);
+        db.RefrigeratorMemberships.Add(member);
 
         await db.SaveChangesAsync();
 

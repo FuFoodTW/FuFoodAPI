@@ -11,7 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 // 添加 DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"),
-        o => { o.MapEnum<UnitType>("product_unit"); }));
+        o =>
+        {
+            o.MapEnum<UnitType>("product_unit");
+            o.MapEnum<SubscriptionTier>("subscription_tier");
+        }));
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

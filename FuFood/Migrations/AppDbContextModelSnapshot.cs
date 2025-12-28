@@ -22,6 +22,7 @@ namespace FuFood.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "product_unit", new[] { "件", "個", "公克", "公升", "公斤", "包", "塊", "壺", "把", "杯", "桶", "條", "毫克", "毫升", "片", "瓶", "盒", "箱", "粒", "罐", "袋", "袋裝", "顆" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "subscription_tier", new[] { "free", "pro" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("FuFood.Models.Entities.InventoryTransaction", b =>
@@ -150,9 +151,6 @@ namespace FuFood.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsDefault")
                         .HasColumnType("boolean");
 
@@ -164,36 +162,80 @@ namespace FuFood.Migrations
                     b.Property<DateTime>("NameUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("QrCode")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById")
+                    b.HasIndex("OwnerId")
                         .IsUnique()
                         .HasFilter("\"IsDefault\" = true");
 
                     b.ToTable("Refrigerators");
                 });
 
-            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMember", b =>
+            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorInvitation", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("RefrigeratorId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("RefrigeratorId");
+
+                    b.ToTable("RefrigeratorInvitations");
+                });
+
+            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("JoinedAt")
+                    b.Property<Guid>("RefrigeratorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("RefrigeratorId", "MemberId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("RefrigeratorId", "MemberId")
+                        .IsUnique();
 
                     b.ToTable("RefrigeratorMembers");
                 });
@@ -219,8 +261,8 @@ namespace FuFood.Migrations
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("text");
 
-                    b.Property<int>("SubscriptionType")
-                        .HasColumnType("integer");
+                    b.Property<SubscriptionTier>("SubscriptionTier")
+                        .HasColumnType("subscription_tier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -304,13 +346,32 @@ namespace FuFood.Migrations
 
             modelBuilder.Entity("FuFood.Models.Entities.Refrigerator", b =>
                 {
-                    b.HasOne("FuFood.Models.Entities.User", "CreatedBy")
+                    b.HasOne("FuFood.Models.Entities.User", "Owner")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorInvitation", b =>
+                {
+                    b.HasOne("FuFood.Models.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FuFood.Models.Entities.Refrigerator", "Refrigerator")
+                        .WithMany()
+                        .HasForeignKey("RefrigeratorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Refrigerator");
                 });
 
             modelBuilder.Entity("FuFood.Models.Entities.RefrigeratorMember", b =>

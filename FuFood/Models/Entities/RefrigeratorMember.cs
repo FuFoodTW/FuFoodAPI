@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FuFood.Models.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Models.Entities;
 
+[Index(nameof(RefrigeratorId), nameof(MemberId), IsUnique = true)]
 public class RefrigeratorMember : IHasTimestamp
 {
     [Key]

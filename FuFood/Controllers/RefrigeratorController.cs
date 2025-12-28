@@ -10,11 +10,10 @@ using FuFood.Models;
 namespace FuFood.Controllers;
 
 [ApiController]
-[Route("api/v1/refrigerators")]
 public class RefrigeratorController(RefrigeratorRepository repository, RefrigeratorService service) : ControllerBase
 {
     // 列出所有自己加入的冰箱群組 (包含自己擁有的)
-    [HttpGet]
+    [HttpGet("/api/v1/refrigerators")]
     public async Task<IActionResult> Index()
     {
         var user = await HttpContext.GetCurrentUser();
@@ -26,7 +25,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
     }
 
     // 顯示點選的單一群組
-    [HttpGet("{id:guid}")]
+    [HttpGet("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Show(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -42,7 +41,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         });
     }
 
-    [HttpPost]
+    [HttpPost("/api/v1/refrigerators")]
     public async Task<IActionResult> Create([FromBody] RefrigeratorCreateRequest request)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -51,7 +50,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         {
             Name = request.Name,
             Colour = request.Colour,
-            CreatedById = user.Id,
+            OwnerId = user.Id,
         };
 
         // 透過導覽屬性自動關聯
@@ -68,22 +67,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         });
     }
 
-    [HttpPost("join")]
-    public async Task<IActionResult> Join([FromBody] RefrigeratorJoinRequest request)
-    {
-        var user = await HttpContext.GetCurrentUser();
-        try
-        {
-            await service.JoinByQrCodeAsync(user, request.QrCode);
-            return Ok(new { Message = "成功加入冰箱" });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-    }
-
-    [HttpPost("{id:guid}/leave")]
+    [HttpPost("/api/v1/refrigerators/{id:guid}/leave")]
     public async Task<IActionResult> Leave(Guid id, [FromBody] RefrigeratorLeaveRequest request)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -98,7 +82,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         }
     }
 
-    [HttpDelete("{id:guid}/members/{memberId:guid}")]
+    [HttpDelete("/api/v1/refrigerators/{id:guid}/members/{memberId:guid}")]
     public async Task<IActionResult> RemoveMember(Guid id, Guid memberId)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -114,7 +98,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         }
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RefrigeratorUpdateRequest request)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -130,7 +114,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         }
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();

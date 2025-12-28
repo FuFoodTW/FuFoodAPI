@@ -1,6 +1,6 @@
 namespace FuFood.Models.Enums;
 
-public enum SubscriptionType
+public enum SubscriptionTier
 {
     Free,
     Pro

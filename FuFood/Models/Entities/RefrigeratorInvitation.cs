@@ -19,6 +19,8 @@ public class RefrigeratorInvitation : IHasTimestamp
     public Guid CreatorId { get; set; }
     public User? Creator { get; set; }
 
+    public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddDays(1);
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

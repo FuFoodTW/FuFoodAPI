@@ -13,8 +13,8 @@ public class Refrigerator : IHasTimestamp
     [StringLength(10)] public required string Name { get; set; }
     [StringLength(30)] public string? Colour { get; set; }
 
-    public required Guid CreatedById { get; set; }
-    public virtual User? CreatedBy { get; set; }
+    public required Guid OwnerId { get; set; }
+    public virtual User? Owner { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -74,7 +74,7 @@ public static class Seeds
 
         var jo = await dbContext.Users.FirstAsync(u => u.LineId == "U78d1bb86f8410a52d375306295c06503");
         var joFridge =
-            await dbContext.Refrigerators.FirstAsync(r => r.CreatedById == jo.Id && r.IsDefault == true);
+            await dbContext.Refrigerators.FirstAsync(r => r.OwnerId == jo.Id && r.IsDefault == true);
 
         var storingTransactionId = Guid.Parse("019b5610-1a1b-748d-966b-c16cd0d74c16");
         var consumingTransactionId = Guid.Parse("019b5b8a-a792-764a-906a-3d0010e330e4");

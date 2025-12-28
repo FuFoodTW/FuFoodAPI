@@ -44,7 +44,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(rm => rm.MemberId);
 
         modelBuilder.Entity<Refrigerator>()
-            .HasIndex(r => r.CreatedById)
+            .HasIndex(r => r.OwnerId)
             .IsUnique()
             .HasFilter("\"IsDefault\" = true");
 

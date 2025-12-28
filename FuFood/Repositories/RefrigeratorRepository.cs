@@ -10,13 +10,13 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     // 列出冰箱建立者的所有冰箱
     public async Task<IEnumerable<Refrigerator>> ListUserRefrigerators(User user)
     {
-        return await dbContext.Refrigerators.Where(r => r.CreatedById == user.Id).ToListAsync();
+        return await dbContext.Refrigerators.Where(r => r.OwnerId == user.Id).ToListAsync();
     }
 
     // 列出冰箱建立者的某個冰箱
     public async Task<Refrigerator?> GetUserRefrigeratorById(User user, Guid id)
     {
-        return await dbContext.Refrigerators.Where(r => r.CreatedById == user.Id).FirstOrDefaultAsync(r => r.Id == id);
+        return await dbContext.Refrigerators.Where(r => r.OwnerId == user.Id).FirstOrDefaultAsync(r => r.Id == id);
     }
 
     public async Task<Refrigerator?> GetByIdAsync(Guid id)
@@ -33,7 +33,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
 
     public async Task<Refrigerator> Create(User user, Refrigerator refrigerator)
     {
-        refrigerator.CreatedById = user.Id;
+        refrigerator.OwnerId = user.Id;
         dbContext.Refrigerators.Add(refrigerator);
         await dbContext.SaveChangesAsync();
 
@@ -54,7 +54,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     public async Task<bool> Delete(User user, Guid id)
     {
         var refrigerator =
-            await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == user.Id);
+            await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.Id == id && r.OwnerId == user.Id);
 
         if (refrigerator == null)
         {
@@ -107,7 +107,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
         var refrigerator = await dbContext.Refrigerators.FindAsync(refrigeratorId);
         if (refrigerator != null)
         {
-            refrigerator.CreatedById = newOwnerId;
+            refrigerator.OwnerId = newOwnerId;
             refrigerator.UpdatedAt = DateTime.UtcNow;
             await dbContext.SaveChangesAsync();
         }

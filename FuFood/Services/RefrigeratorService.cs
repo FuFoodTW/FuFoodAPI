@@ -9,31 +9,6 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
     private const int FreeSubscriptionLimit = 3;
     private const int ProSubscriptionLimit = 5;
 
-    public async Task<bool> JoinByQrCodeAsync(User user, string qrCode)
-    {
-        var refrigerator = await repository.GetByQrCodeAsync(qrCode);
-        if (refrigerator == null) return false;
-
-        // Check if already a member
-        if (await repository.IsMemberAsync(refrigerator.Id, user.Id))
-        {
-            throw new InvalidOperationException("您已經是這個冰箱的成員了");
-        }
-
-        // Check subscription limit of the owner
-        var owner = await userRepository.GetUserById(refrigerator.CreatedById);
-        int limit = owner?.SubscriptionType == SubscriptionType.Pro ? ProSubscriptionLimit : FreeSubscriptionLimit;
-        int currentCount = await repository.GetMemberCountAsync(refrigerator.Id);
-
-        if (currentCount >= limit)
-        {
-            throw new InvalidOperationException("該冰箱成員人數已達上限");
-        }
-
-        await repository.AddMemberAsync(refrigerator.Id, user.Id);
-        return true;
-    }
-
     public async Task UpdateNameAsync(User user, Guid refrigeratorId, string newName)
     {
         if (newName.Length < 1 || newName.Length > 10)
@@ -57,7 +32,7 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
         refrigerator.Name = newName;
         refrigerator.NameUpdatedAt = DateTime.UtcNow;
         refrigerator.UpdatedAt = DateTime.UtcNow;
-        
+
         await repository.Update(user, refrigerator, newName, refrigerator.Colour);
     }
 
@@ -66,7 +41,7 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
         var refrigerator = await repository.GetByIdAsync(refrigeratorId);
         if (refrigerator == null) throw new KeyNotFoundException("冰箱不存在");
 
-        if (refrigerator.CreatedById == user.Id)
+        if (refrigerator.OwnerId == user.Id)
         {
             // Owner leaving
             if (refrigerator.IsDefault)
@@ -89,7 +64,7 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
         }
 
         await repository.RemoveMemberAsync(refrigeratorId, user.Id);
-        
+
         // TODO: Notification logic
     }
 

@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using FuFood.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FuFood.Models.Entities;
 
 [Index(nameof(FullyConsumedAt))]
 [Index(nameof(ParentId), nameof(InventoryTransactionId))]
-public class InventoryTransactionItem
+public class InventoryTransactionItem : IHasTimestamp
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

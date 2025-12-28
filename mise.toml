@@ -11,10 +11,4 @@ PGHOST = "localhost"
 PGDATABASE = "fufood_dev"
 
 [tasks.token]
-shell = "pwsh -Command"
-run = """
-cd ./FuFood/scripts/issue_access_token
-$value = go run .
-write-host $value
-$value | set-clipboard
-"""
+run = "pwsh -NoProfile ./FuFood/scripts/issue_access_token/call.ps1"

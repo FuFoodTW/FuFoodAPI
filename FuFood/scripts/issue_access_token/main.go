@@ -220,8 +220,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	requestedId := JoLineID
+	if len(os.Args) > 1 {
+		requestedId = os.Args[1]
+	}
+
 	var userId string
-	err = conn.QueryRow(`select "Id"::text from "Users" where "LineId" = $1`, JoLineID).Scan(&userId)
+	err = conn.QueryRow(`select "Id"::text from "Users" where "LineId" = $1 or "Id"::text = $1`, requestedId).Scan(&userId)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		log.Fatalf(`No user with Line ID %s found in the database. Please run "dotnet run -- seed" first.`, JoLineID)
 	}

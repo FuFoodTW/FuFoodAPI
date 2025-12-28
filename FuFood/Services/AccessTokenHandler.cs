@@ -52,7 +52,7 @@ public class AccessTokenHandler(
                 return AuthenticateResult.Success(ticket);
             }
         }
-        catch (TokenExpiredException e)
+        catch (TokenExpiredException)
         {
             return AuthenticateResult.Fail("Access token expired");
         }

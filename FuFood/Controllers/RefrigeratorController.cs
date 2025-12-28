@@ -2,17 +2,22 @@ using FuFood.Models.Entities;
 using FuFood.Models.Requests;
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using FuFood.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using FuFood.Models;
 
 namespace FuFood.Controllers;
 
-public class RefrigeratorController(RefrigeratorRepository repository) : Controller
+[ApiController]
+public class RefrigeratorController(RefrigeratorRepository repository, RefrigeratorService service) : ControllerBase
 {
-    // 列出所有自己建立的冰箱群組
+    // 列出所有自己加入的冰箱群組 (包含自己擁有的)
     [HttpGet("/api/v1/refrigerators")]
     public async Task<IActionResult> Index()
     {
         var user = await HttpContext.GetCurrentUser();
-        var refrigerators = await repository.ListUserRefrigerators(user!);
+        var refrigerators = await repository.ListUserRefrigerators(user);
         return Ok(new
         {
             Data = refrigerators
@@ -24,7 +29,7 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
     public async Task<IActionResult> Show(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();
-        var refrigerator = await repository.GetUserRefrigeratorById(user!, id);
+        var refrigerator = await repository.GetUserRefrigeratorById(user, id);
         if (refrigerator == null)
         {
             return NotFound();
@@ -45,10 +50,16 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
         {
             Name = request.Name,
             Colour = request.Colour,
-            CreatedById = user!.Id
+            OwnerId = user.Id,
         };
 
-        var result = await repository.Create(user!, refrigerator);
+        // 透過導覽屬性自動關聯
+        refrigerator.Members.Add(new RefrigeratorMember
+        {
+            MemberId = user.Id
+        });
+
+        var result = await repository.Create(user, refrigerator);
 
         return CreatedAtAction(nameof(Show), new { id = result.Id }, new
         {
@@ -56,37 +67,65 @@ public class RefrigeratorController(RefrigeratorRepository repository) : Control
         });
     }
 
+    [HttpPost("/api/v1/refrigerators/{id:guid}/leave")]
+    public async Task<IActionResult> Leave(Guid id, [FromBody] RefrigeratorLeaveRequest request)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        try
+        {
+            await service.LeaveAsync(user, id, request.NewOwnerId);
+            return Ok(new { Message = "成功退出冰箱" });
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
+
+    [HttpDelete("/api/v1/refrigerators/{id:guid}/members/{memberId:guid}")]
+    public async Task<IActionResult> RemoveMember(Guid id, Guid memberId)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        try
+        {
+            await service.RemoveMemberAsync(user, id, memberId);
+            return Ok(new { Message = "成功移除成員" });
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException
+                                       or KeyNotFoundException)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
+
     [HttpPut("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RefrigeratorUpdateRequest request)
     {
-        var user = await HttpContext.GetCurrentUser()!;
-        var refrigerator = await repository.GetUserRefrigeratorById(user!, id);
-
-        if (refrigerator == null)
+        var user = await HttpContext.GetCurrentUser();
+        try
         {
-            return NotFound();
+            await service.UpdateNameAsync(user, id, request.Name);
+            var refrigerator = await repository.GetByIdAsync(id);
+            return Ok(new { Data = refrigerator });
         }
-
-        refrigerator = await repository.Update(user!, refrigerator, request.Name, request.Colour);
-
-        return Ok(new
+        catch (Exception ex) when (ex is ArgumentException or UnauthorizedAccessException or InvalidOperationException)
         {
-            Data = refrigerator
-        });
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 
     [HttpDelete("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var user = await HttpContext.GetCurrentUser();
-
-        var success = await repository.Delete(user!, id);
-
-        if (!success)
+        try
         {
-            return NotFound();
+            await service.DeleteAsync(user, id);
+            return NoContent();
         }
-
-        return NoContent();
+        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 }

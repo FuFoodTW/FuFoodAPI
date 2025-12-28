@@ -27,7 +27,7 @@ public class RefrigeratorInvitationService(AppDbContext dbContext, CryptoService
 
     private static string GenerateInvitationToken()
     {
-        var bytes = RandomNumberGenerator.GetBytes(32);
+        var bytes = RandomNumberGenerator.GetBytes(24);
         return Base64Url.EncodeToString(bytes);
     }
 }

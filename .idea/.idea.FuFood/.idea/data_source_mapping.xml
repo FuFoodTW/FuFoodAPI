@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourcePerFileMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/69458225-60e7-4873-a202-9b0872936c71/console.sql" value="69458225-60e7-4873-a202-9b0872936c71" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/69458225-60e7-4873-a202-9b0872936c71/console_1.sql" value="69458225-60e7-4873-a202-9b0872936c71" />
     <file url="file://$PROJECT_DIR$/FuFood/Repositories/InventoryTransactionItemRepository.cs" value="69458225-60e7-4873-a202-9b0872936c71" />
     <file url="file://$PROJECT_DIR$/FuFood/Services/CommitTransactionService.cs" value="69458225-60e7-4873-a202-9b0872936c71" />
   </component>

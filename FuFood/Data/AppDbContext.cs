@@ -37,6 +37,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Refrigerator>()
+            .HasMany(r => r.Members)
+            .WithMany(u => u.MemberRefrigerators)
+            .UsingEntity<RefrigeratorMembership>();
+
+        modelBuilder.Entity<Refrigerator>()
+            .HasOne(r => r.Owner)
+            .WithMany(u => u.Refrigerators)
+            .HasForeignKey(r => r.OwnerId);
+
         modelBuilder.Entity<RefrigeratorMembership>()
             .HasOne(rm => rm.Refrigerator)
             .WithMany(r => r.Memberships)

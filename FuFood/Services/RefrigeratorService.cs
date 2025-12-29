@@ -89,7 +89,7 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
 
     public async Task DeleteAsync(User owner, Guid refrigeratorId)
     {
-        var refrigerator = await repository.GetUserRefrigeratorById(owner, refrigeratorId);
+        var refrigerator = await repository.GetOwnedRefrigeratorById(owner, refrigeratorId);
         if (refrigerator == null)
         {
             throw new UnauthorizedAccessException("只有擁有者可以刪除冰箱");

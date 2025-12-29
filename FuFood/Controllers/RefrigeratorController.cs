@@ -65,10 +65,16 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
     public async Task<IActionResult> Update(Guid id, [FromBody] RefrigeratorUpdateRequest request)
     {
         var user = await HttpContext.GetCurrentUser();
+        var refrigerator = await repository.GetOwnedRefrigeratorById(user, id);
+        if (refrigerator == null)
+        {
+            return NotFound();
+        }
+
         try
         {
             await service.UpdateNameAsync(user, id, request.Name);
-            var refrigerator = await repository.GetByIdAsync(id);
+            refrigerator = await repository.GetByIdAsync(id);
             return Ok(new { Data = refrigerator });
         }
         catch (Exception ex) when (ex is ArgumentException or UnauthorizedAccessException or InvalidOperationException)

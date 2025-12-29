@@ -10,13 +10,27 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     // 列出冰箱建立者的所有冰箱
     public async Task<IEnumerable<Refrigerator>> ListUserRefrigerators(User user)
     {
-        return await dbContext.Refrigerators.Where(r => r.OwnerId == user.Id).ToListAsync();
+        return await dbContext.RefrigeratorMemberships
+            .Where(rm => rm.MemberId == user.Id)
+            .Select(rm => rm.Refrigerator!)
+            .OrderBy(r => r!.Id)
+            .ToListAsync();
     }
 
-    // 列出冰箱建立者的某個冰箱
     public async Task<Refrigerator?> GetUserRefrigeratorById(User user, Guid id)
     {
-        return await dbContext.Refrigerators.Where(r => r.OwnerId == user.Id).FirstOrDefaultAsync(r => r.Id == id);
+        return await dbContext.RefrigeratorMemberships
+            .Where(rm => rm.RefrigeratorId == id)
+            .Where(rm => rm.MemberId == user.Id)
+            .Select(rm => rm.Refrigerator)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Refrigerator?> GetOwnedRefrigeratorById(User user, Guid id)
+    {
+        return await dbContext.Refrigerators
+            .Where(r => r.OwnerId == user.Id)
+            .FirstOrDefaultAsync(r => r.Id == id);
     }
 
     public async Task<Refrigerator?> GetByIdAsync(Guid id)

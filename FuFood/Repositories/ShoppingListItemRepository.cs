@@ -31,7 +31,7 @@ public class ShoppingListItemRepository(AppDbContext dbContext)
         return item;
     }
 
-    public async Task Update(
+    public async Task<ShoppingListItem> Update(
         ShoppingListItem item,
         UpsertShoppingListItemRequest request)
     {
@@ -41,6 +41,7 @@ public class ShoppingListItemRepository(AppDbContext dbContext)
         item.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync();
+        return item;
     }
 
     public async Task Delete(ShoppingListItem item)

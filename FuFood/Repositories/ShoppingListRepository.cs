@@ -10,7 +10,7 @@ public class ShoppingListRepository(
 {
     public async Task<ShoppingList?> GetById(Guid id)
     {
-        return await dbContext.ShoppingLists.Include(x => x.Items).Include(x => x.RefrigeratorId)
+        return await dbContext.ShoppingLists.Include(x => x.Items).Include(x => x.Refrigerator)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -36,7 +36,8 @@ public class ShoppingListRepository(
         return list;
     }
 
-    public async Task Edit(ShoppingList shoppingList, UpsertShoppingListRequest upsertShoppingListRequest)
+    public async Task<ShoppingList> UpdateShoppingList(ShoppingList shoppingList,
+        UpsertShoppingListRequest upsertShoppingListRequest)
     {
         shoppingList.Title = upsertShoppingListRequest.Title;
         shoppingList.CoverPhotoPath = upsertShoppingListRequest.CoverPhotoPath;
@@ -45,6 +46,8 @@ public class ShoppingListRepository(
         shoppingList.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync();
+
+        return shoppingList;
     }
 
     public async Task Delete(ShoppingList list)

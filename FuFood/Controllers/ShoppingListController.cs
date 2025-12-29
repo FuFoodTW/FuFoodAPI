@@ -35,7 +35,7 @@ public class ShoppingListController(
 
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
 
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
         return Ok(new
         {
@@ -62,7 +62,8 @@ public class ShoppingListController(
 
     // 編輯共享清單
     [HttpPut("/api/v1/shopping_lists/{shoppingListId:guid}")]
-    public async Task<IActionResult> Edit(Guid shoppingListId, [FromBody] UpsertShoppingListRequest shoppingListRequest)
+    public async Task<IActionResult> Update(Guid shoppingListId,
+        [FromBody] UpsertShoppingListRequest shoppingListRequest)
     {
         var user = await HttpContext.GetCurrentUser();
 
@@ -71,11 +72,14 @@ public class ShoppingListController(
 
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
 
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
-        await shoppingListRepository.Edit(list, shoppingListRequest);
+        var shoppingList = await shoppingListRepository.UpdateShoppingList(list, shoppingListRequest);
 
-        return Ok();
+        return Ok(new
+        {
+            Data = shoppingList
+        });
     }
 
     // 刪除共享清單
@@ -89,7 +93,7 @@ public class ShoppingListController(
 
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
 
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
         await shoppingListRepository.Delete(list);
 

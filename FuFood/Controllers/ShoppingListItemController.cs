@@ -9,7 +9,28 @@ public class ShoppingListItemController(
     RefrigeratorRepository refrigeratorRepository,
     ShoppingListItemRepository itemRepository) : Controller
 {
+    // 列表
     [HttpGet("/api/v1/shopping_lists/{shoppingListId:guid}/items")]
+    public async Task<IActionResult> Index(Guid shoppingListId)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        
+        var list = await shoppingListRepository.GetById(shoppingListId);
+        if (list == null) return NotFound();
+
+        var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
+        if (refrigerator == null) return NotFound();
+        
+        var items = await itemRepository.GetById(shoppingListId);
+        
+        return Ok(new
+        {
+            Data =items 
+        });
+    }
+
+    // 建立共享清單內容 
+    [HttpPost("/api/v1/shopping_lists/{shoppingListId:guid}/items")]
     public async Task<IActionResult> Create(Guid shoppingListId, [FromBody] UpsertShoppingListItemRequest itemRequest)
     {
         var user = await HttpContext.GetCurrentUser();
@@ -18,7 +39,7 @@ public class ShoppingListItemController(
         if (list == null) return NotFound();
 
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
         var item = await itemRepository.CreateListItem(list, user, itemRequest);
 
@@ -29,7 +50,7 @@ public class ShoppingListItemController(
     }
 
     [HttpPut("/api/v1/shopping_list_items/{itemId:Guid}/")]
-    public async Task<IActionResult> UpdateItem(
+    public async Task<IActionResult> Update(
         Guid itemId,
         [FromBody] UpsertShoppingListItemRequest request)
     {
@@ -41,7 +62,7 @@ public class ShoppingListItemController(
         var refrigerator = await refrigeratorRepository
             .GetUserRefrigeratorById(user, item.ShoppingList!.RefrigeratorId);
 
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
         await itemRepository.Update(item, request);
 
@@ -49,7 +70,7 @@ public class ShoppingListItemController(
     }
 
     [HttpDelete("/api/v1/shopping_list_items/{itemId:Guid}/")]
-    public async Task<IActionResult> DeleteItem(Guid itemId)
+    public async Task<IActionResult> Delete(Guid itemId)
     {
         var user = await HttpContext.GetCurrentUser();
 
@@ -59,7 +80,7 @@ public class ShoppingListItemController(
         var refrigerator = await refrigeratorRepository
             .GetUserRefrigeratorById(user, item.ShoppingList!.RefrigeratorId);
 
-        if (refrigerator == null) return Forbid();
+        if (refrigerator == null) return NotFound();
 
         await itemRepository.Delete(item);
 

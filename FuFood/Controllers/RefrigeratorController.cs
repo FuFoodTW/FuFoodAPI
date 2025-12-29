@@ -52,12 +52,6 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
             OwnerId = user.Id,
         };
 
-        // 透過導覽屬性自動關聯
-        refrigerator.Members.Add(new RefrigeratorMember
-        {
-            MemberId = user.Id
-        });
-
         var result = await repository.Create(user, refrigerator);
 
         return CreatedAtAction(nameof(Show), new { id = result.Id }, new

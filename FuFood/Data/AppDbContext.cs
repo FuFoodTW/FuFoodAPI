@@ -13,7 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RevokedAccessToken> RevokedAccessTokens { get; set; }
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<InventoryTransactionItem> InventoryTransactionsItems { get; set; }
-    public DbSet<RefrigeratorMember> RefrigeratorMembers { get; set; }
+    public DbSet<RefrigeratorMembership> RefrigeratorMemberships { get; set; }
     public DbSet<RefrigeratorInvitation> RefrigeratorInvitations { get; set; }
 
     public DbSet<ShoppingList> ShoppingLists { get; set; }
@@ -37,12 +37,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<RefrigeratorMember>()
+        modelBuilder.Entity<RefrigeratorMembership>()
             .HasOne(rm => rm.Refrigerator)
-            .WithMany(r => r.Members)
+            .WithMany(r => r.Memberships)
             .HasForeignKey(rm => rm.RefrigeratorId);
 
-        modelBuilder.Entity<RefrigeratorMember>()
+        modelBuilder.Entity<RefrigeratorMembership>()
             .HasOne(rm => rm.Member)
             .WithMany()
             .HasForeignKey(rm => rm.MemberId);

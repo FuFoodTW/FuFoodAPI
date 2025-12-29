@@ -18,7 +18,7 @@ public class GlobalTestFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.UseEnvironment("Test"));
-        await MigrateDb();
+        await PrepareDb();
     }
 
     public Task DisposeAsync()
@@ -26,10 +26,11 @@ public class GlobalTestFixture : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    private async Task MigrateDb()
+    private async Task PrepareDb()
     {
         await using var scope = AsyncScope;
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.MigrateAsync();
+        await db.Users.ExecuteDeleteAsync();
     }
 }

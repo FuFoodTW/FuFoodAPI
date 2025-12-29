@@ -10,13 +10,17 @@ public class ShoppingListRepository(
 {
     public async Task<ShoppingList?> GetById(Guid id)
     {
-        return await dbContext.ShoppingLists.Include(x => x.Items).Include(x => x.Refrigerator)
+        return await dbContext.ShoppingLists
+            .Include(x => x.Items)
+            .Include(x => x.Refrigerator)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<List<ShoppingList>> GetListsByRefrigerator(Guid refrigeratorId)
     {
-        return await dbContext.ShoppingLists.Where(r => r.RefrigeratorId == refrigeratorId).OrderBy(r => r.Id)
+        return await dbContext.ShoppingLists
+            .Where(r => r.RefrigeratorId == refrigeratorId)
+            .OrderBy(r => r.Id)
             .ToListAsync();
     }
 

@@ -14,24 +14,24 @@ public class ShoppingListItemController(
     public async Task<IActionResult> Index(Guid shoppingListId)
     {
         var user = await HttpContext.GetCurrentUser();
-        
+
         var list = await shoppingListRepository.GetById(shoppingListId);
         if (list == null) return NotFound();
 
         var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
         if (refrigerator == null) return NotFound();
-        
+
         var items = await itemRepository.GetById(shoppingListId);
-        
+
         return Ok(new
         {
-            Data =items 
+            Data = items
         });
     }
 
     // 建立共享清單內容 
     [HttpPost("/api/v1/shopping_lists/{shoppingListId:guid}/items")]
-    public async Task<IActionResult> Create(Guid shoppingListId, [FromBody] UpsertShoppingListItemRequest itemRequest)
+    public async Task<IActionResult> Create(Guid shoppingListId, [FromBody] CreateShoppingListItemRequest itemRequest)
     {
         var user = await HttpContext.GetCurrentUser();
 

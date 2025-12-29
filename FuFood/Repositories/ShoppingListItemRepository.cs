@@ -14,7 +14,7 @@ public class ShoppingListItemRepository(AppDbContext dbContext)
     }
 
     public async Task<ShoppingListItem> CreateListItem(ShoppingList shoppingList, User user,
-        UpsertShoppingListItemRequest itemRequest)
+        CreateShoppingListItemRequest itemRequest)
     {
         var item = new ShoppingListItem
         {
@@ -22,7 +22,8 @@ public class ShoppingListItemRepository(AppDbContext dbContext)
             CreatorId = user.Id,
             Name = itemRequest.Name,
             Quantity = itemRequest.Quantity,
-            Unit = itemRequest.Unit
+            Unit = itemRequest.Unit,
+            PhotoPath = itemRequest.PhotoPath
         };
 
         dbContext.ShoppingListItems.Add(item);
@@ -39,6 +40,7 @@ public class ShoppingListItemRepository(AppDbContext dbContext)
         item.Quantity = request.Quantity;
         item.Unit = request.Unit;
         item.UpdatedAt = DateTime.UtcNow;
+        item.PhotoPath = request.PhotoPath;
 
         await dbContext.SaveChangesAsync();
         return item;

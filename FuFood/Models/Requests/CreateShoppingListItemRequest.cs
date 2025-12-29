@@ -3,7 +3,7 @@ using FuFood.Models.Enums;
 
 namespace FuFood.Models.Requests;
 
-public class UpsertShoppingListItemRequest
+public class CreateShoppingListItemRequest
 {
     public required string Name { get; set; } = null!;
 

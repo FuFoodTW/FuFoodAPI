@@ -35,6 +35,11 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     {
         refrigerator.OwnerId = user.Id;
         dbContext.Refrigerators.Add(refrigerator);
+        dbContext.RefrigeratorMemberships.Add(new RefrigeratorMembership
+        {
+            MemberId = user.Id,
+            RefrigeratorId = refrigerator.Id,
+        });
         await dbContext.SaveChangesAsync();
 
         return refrigerator;

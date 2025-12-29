@@ -21,7 +21,7 @@ public sealed class Refrigerator : IHasTimestamp
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime NameUpdatedAt { get; set; } = DateTime.MinValue;
 
-    public bool IsDefault { get; set; } = false;
+    public bool IsDefault { get; set; }
 
-    public ICollection<RefrigeratorMembership> Memberships { get; set; } = null!;
+    [JsonIgnore] public ICollection<RefrigeratorMembership> Memberships { get; set; } = null!;
 }

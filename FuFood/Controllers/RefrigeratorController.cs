@@ -49,7 +49,6 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         var refrigerator = new Refrigerator
         {
             Name = request.Name,
-            Colour = request.Colour,
             OwnerId = user.Id,
         };
 

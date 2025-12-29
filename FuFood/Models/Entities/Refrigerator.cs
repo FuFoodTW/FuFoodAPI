@@ -12,7 +12,6 @@ public sealed class Refrigerator : IHasTimestamp
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
     [StringLength(10)] public required string Name { get; set; }
-    [StringLength(30)] public string? Colour { get; set; }
 
     public required Guid OwnerId { get; set; }
     [JsonIgnore] public User? Owner { get; set; }

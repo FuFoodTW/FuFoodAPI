@@ -30,7 +30,7 @@ public class RefrigeratorService(RefrigeratorRepository repository, UserReposito
         refrigerator.NameUpdatedAt = DateTime.UtcNow;
         refrigerator.UpdatedAt = DateTime.UtcNow;
 
-        await repository.Update(user, refrigerator, newName, refrigerator.Colour);
+        await repository.Update(user, refrigerator, newName);
     }
 
     public async Task LeaveAsync(User user, Guid refrigeratorId, Guid? newOwnerId = null)

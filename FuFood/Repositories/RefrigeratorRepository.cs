@@ -41,7 +41,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
     }
 
     // 只能編輯自己的冰箱
-    public async Task<Refrigerator?> Update(User user, Refrigerator refrigerator, string name, string? colour)
+    public async Task<Refrigerator?> Update(User user, Refrigerator refrigerator, string name)
     {
         refrigerator.Name = name;
         refrigerator.UpdatedAt = DateTime.UtcNow;

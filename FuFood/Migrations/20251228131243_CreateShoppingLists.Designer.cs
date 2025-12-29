@@ -4,6 +4,7 @@ using FuFood.Data;
 using FuFood.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FuFood.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251228131243_CreateShoppingLists")]
+    partial class CreateShoppingLists
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,7 +292,7 @@ namespace FuFood.Migrations
                     b.Property<decimal>("Quantity")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("ShoppingListId")
+                    b.Property<Guid?>("ShoppingListId")
                         .HasColumnType("uuid");
 
                     b.Property<UnitType>("Unit")
@@ -476,17 +479,13 @@ namespace FuFood.Migrations
 
             modelBuilder.Entity("FuFood.Models.Entities.ShoppingListItem", b =>
                 {
-                    b.HasOne("FuFood.Models.Entities.ShoppingList", "ShoppingList")
+                    b.HasOne("FuFood.Models.Entities.ShoppingList", null)
                         .WithMany("Items")
-                        .HasForeignKey("ShoppingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ShoppingListId");
 
                     b.HasOne("FuFood.Models.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-
-                    b.Navigation("ShoppingList");
 
                     b.Navigation("User");
                 });

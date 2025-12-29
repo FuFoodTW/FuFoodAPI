@@ -22,4 +22,7 @@ public class ShoppingListItem
 
     public required Guid CreatorId { get; set; }
     public User? User { get; set; }
+
+    public required Guid ShoppingListId { get; set; }
+    public ShoppingList? ShoppingList { get; set; }
 }

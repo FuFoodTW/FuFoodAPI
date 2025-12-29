@@ -16,6 +16,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RefrigeratorMember> RefrigeratorMembers { get; set; }
     public DbSet<RefrigeratorInvitation> RefrigeratorInvitations { get; set; }
 
+    public DbSet<ShoppingList> ShoppingLists { get; set; }
+
+    public DbSet<ShoppingListItem> ShoppingListItems { get; set; }
+
     public override int SaveChanges()
     {
         foreach (var entry in ChangeTracker.Entries<IHasTimestamp>())

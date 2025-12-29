@@ -24,4 +24,5 @@ public sealed class Refrigerator : IHasTimestamp
     public bool IsDefault { get; set; }
 
     [JsonIgnore] public ICollection<RefrigeratorMembership> Memberships { get; set; } = null!;
+    [JsonIgnore] public ICollection<User> Members { get; set; } = null!;
 }

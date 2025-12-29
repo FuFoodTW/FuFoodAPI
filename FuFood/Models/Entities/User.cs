@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using FuFood.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,4 +23,8 @@ public class User : IHasTimestamp
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+
+    [JsonIgnore] public ICollection<Refrigerator> MemberRefrigerators { get; set; } = null!;
+    [JsonIgnore] public ICollection<Refrigerator> Refrigerators { get; set; } = null!;
 }

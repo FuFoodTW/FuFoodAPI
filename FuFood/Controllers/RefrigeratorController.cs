@@ -61,37 +61,6 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         });
     }
 
-    [HttpPost("/api/v1/refrigerators/{id:guid}/leave")]
-    public async Task<IActionResult> Leave(Guid id, [FromBody] RefrigeratorLeaveRequest request)
-    {
-        var user = await HttpContext.GetCurrentUser();
-        try
-        {
-            await service.LeaveAsync(user, id, request.NewOwnerId);
-            return Ok(new { Message = "成功退出冰箱" });
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-    }
-
-    [HttpDelete("/api/v1/refrigerators/{id:guid}/members/{memberId:guid}")]
-    public async Task<IActionResult> RemoveMember(Guid id, Guid memberId)
-    {
-        var user = await HttpContext.GetCurrentUser();
-        try
-        {
-            await service.RemoveMemberAsync(user, id, memberId);
-            return Ok(new { Message = "成功移除成員" });
-        }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or InvalidOperationException
-                                       or KeyNotFoundException)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
-    }
-
     [HttpPut("/api/v1/refrigerators/{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RefrigeratorUpdateRequest request)
     {

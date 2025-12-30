@@ -18,6 +18,7 @@ public class User : IHasTimestamp
     [StringLength(255)] public required string Name { get; set; }
     public string? ProfilePictureUrl { get; set; }
 
+    [JsonIgnore]
     public Enums.SubscriptionTier SubscriptionTier { get; set; } =
         Enums.SubscriptionTier.Free;
 

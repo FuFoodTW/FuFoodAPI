@@ -30,6 +30,7 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
         };
 
         dbContext.Add(membership);
+        dbContext.Remove(invitation);
         await dbContext.SaveChangesAsync();
         return membership;
     }
@@ -39,10 +40,10 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
         return await dbContext.Database
             .SqlQueryRaw<bool>(
                 """
-                select exists
+                select (exists
                     (select from "Refrigerators" where "Id" = {0} and "OwnerId" = {1})
                 or exists
-                    (select from "RefrigeratorMembers" where "RefrigeratorId" = {0} and "MemberId" = {1});
+                    (select from "RefrigeratorMemberships" where "RefrigeratorId" = {0} and "MemberId" = {1})) AS "Value"
                 """, refrigeratorId, user.Id)
             .FirstOrDefaultAsync();
     }
@@ -52,21 +53,15 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
         return await dbContext.Database
             .SqlQueryRaw<int>(
                 """
-                select
-                    -- base capacity based on the user's subscription tier
-                    case u."SubscriptionTier"
+                select (case u."SubscriptionTier"
                         when 'free' then {0}
                         when 'pro' then {1}
-                    end
-                        -- minus existing member count
-                        - count(m."Id")
-                        -- minus the owner
-                        - 1
+                    end - count(m."Id")) AS "Value"
                 from "Refrigerators" r
-                left join "RefrigeratorMembers" m on m."RefrigeratorId" = r."Id"
+                left join "RefrigeratorMemberships" m on m."RefrigeratorId" = r."Id"
                 join "Users" u on r."OwnerId" = u."Id"
                 where r."Id" = {2}
-                group by u."SubscriptionTier";
+                group by u."SubscriptionTier"
                 """, FreeSubscriptionLimit, ProSubscriptionLimit, refrigeratorId)
             .FirstOrDefaultAsync();
     }

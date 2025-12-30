@@ -31,6 +31,11 @@ public class TestFactory(AppDbContext db)
         action?.Invoke(refrigerator);
 
         db.Add(refrigerator);
+        db.Add(new RefrigeratorMembership
+        {
+            MemberId = user.Id,
+            RefrigeratorId = refrigerator.Id,
+        });
         await db.SaveChangesAsync();
 
         return refrigerator;

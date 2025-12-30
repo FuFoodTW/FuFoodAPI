@@ -9,6 +9,12 @@ public class RefrigeratorInvitationController(
     RefrigeratorInvitationRepository invitationRepository,
     RefrigeratorInvitationService service) : Controller
 {
+    /// <summary>
+    /// Creates a `RefrigeratorInvitation` for the requested `Refrigerator`.
+    /// The `token` field of the invitation is used to generate a QR code, displayed to the user.
+    /// </summary>
+    /// <param name="refrigeratorId"></param>
+    /// <returns></returns>
     [HttpPost("/api/v1/refrigerators/{refrigeratorId:guid}/invitations")]
     public async Task<IActionResult> Create(Guid refrigeratorId)
     {

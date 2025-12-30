@@ -53,6 +53,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<RefrigeratorService>();
 builder.Services.AddScoped<CommitTransactionService>();
 builder.Services.AddScoped<RefrigeratorInvitationService>();
+builder.Services.AddScoped<RefrigeratorMembershipService>();
 
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });

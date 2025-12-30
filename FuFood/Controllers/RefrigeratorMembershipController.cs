@@ -9,6 +9,11 @@ public class RefrigeratorMembershipController(
     RefrigeratorInvitationRepository invitationRepository,
     RefrigeratorMembershipService membershipService) : Controller
 {
+    /// <summary>
+    /// Creates a `RefrigeratorMembership` with the current user using a valid invitation token.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("/api/v1/refrigerator_memberships")]
     public async Task<IActionResult> Create([FromBody] RefrigeratorMembershipCreateRequest request)
     {

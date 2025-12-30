@@ -40,8 +40,8 @@ public static class Seeds
         // Create a default refrigerator for all users that don't have one yet
         await dbContext.Database.ExecuteSqlRawAsync(
             """
-            insert into "Refrigerators" ("Id", "Name", "Colour", "OwnerId", "IsDefault", "CreatedAt", "UpdatedAt")
-            select uuidv7(), '我的冰箱', 'blue', u."Id", true, now() at time zone 'utc', now() at time zone 'utc'
+            insert into "Refrigerators" ("Id", "Name", "OwnerId", "IsDefault", "CreatedAt", "UpdatedAt")
+            select uuidv7(), '我的冰箱', u."Id", true, now(), now()
             from "Users" u
             left join "Refrigerators" r on r."OwnerId" = u."Id" and r."IsDefault" = true
             where r."Id" IS NULL;
@@ -142,6 +142,15 @@ public static class Seeds
                 CreatedAt = newRecord.CreatedAt
             })
             .RunAsync();
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            insert into "RefrigeratorMemberships" ("Id", "RefrigeratorId", "MemberId", "CreatedAt", "UpdatedAt") 
+            select uuidv7(), r."Id", u."Id", now(), now() from "Refrigerators" r
+            join "Users" u on r."OwnerId" = u."Id"
+            left join "RefrigeratorMemberships" rm on rm."MemberId" = u."Id" and rm."RefrigeratorId" = r."Id"
+            where rm."Id" is null;
+            """);
 
         scope.Complete();
     }

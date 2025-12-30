@@ -38,7 +38,6 @@ public class UserRepository(AppDbContext db)
         {
             RefrigeratorId = defaultRefrigerator.Id,
             MemberId = user.Id,
-            CreatedAt = DateTime.UtcNow
         };
         db.RefrigeratorMemberships.Add(member);
 

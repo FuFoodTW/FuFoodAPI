@@ -16,10 +16,12 @@ public class LineOAuthController(
     : Controller
 {
     private const string StateCookieName = "oauth_state";
+    private const string RedirectUrlCookieName = "oauth_redirect_url";
+    private const string DefaultRedirectUrl = "https://fufood.jocelynh.me";
 
     // Init() 工作 1.產生隨機值 2.設定 cookie 3.導向 line 登入的 URL
     [HttpGet("/oauth/line/init")]
-    public IActionResult Init()
+    public IActionResult Init([FromQuery(Name = "ref")] string? redirectTo)
     {
         var state = GenerateState();
         var cookieOptions = new CookieOptions
@@ -31,6 +33,12 @@ public class LineOAuthController(
             IsEssential = true
         };
         Response.Cookies.Append(StateCookieName, state, cookieOptions);
+
+        if (!string.IsNullOrEmpty(redirectTo))
+        {
+            Response.Cookies.Append(RedirectUrlCookieName, redirectTo, cookieOptions);
+        }
+
         var url = lineService.GetAuthorizationUrl(state);
         return Redirect(url);
     }
@@ -43,6 +51,8 @@ public class LineOAuthController(
         {
             return BadRequest();
         }
+
+        Request.Cookies.TryGetValue(RedirectUrlCookieName, out var redirectUrl);
 
         var response = await lineService.IssueAccessToken(code);
         var claims = lineService.DecodeIdToken(response.IdToken);
@@ -61,10 +71,12 @@ public class LineOAuthController(
 
         Response.Cookies.Append(Constants.AccessTokenCookieName, accessToken, cookieOptions);
         Response.Cookies.Delete(StateCookieName);
-        return View();
+        Response.Cookies.Delete(RedirectUrlCookieName);
+
+        return Redirect(redirectUrl ?? DefaultRedirectUrl);
     }
 
-    private string GenerateState()
+    private static string GenerateState()
     {
         var bytes = RandomNumberGenerator.GetBytes(4);
         return Convert.ToHexStringLower(bytes);

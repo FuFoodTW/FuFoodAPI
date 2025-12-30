@@ -24,7 +24,7 @@ public class ShoppingListItemController(
         if (refrigerator == null) return NotFound();
 
         // 3. 拿 items
-        var items = await itemRepository.GetItemByShoppingListId(shoppingListId);
+        var items = await itemRepository.ListItemsByShoppingListId(shoppingListId);
 
         return Ok(new
         {

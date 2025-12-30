@@ -9,7 +9,7 @@ public class ProductRepository(AppDbContext dbContext)
     public IQueryable<Product> GetProductsQueryByRefrigerator(Guid refrigeratorId)
     {
         return dbContext.InventoryTransactionsItems
-            .Where(i => i.InventoryTransaction.RefrigeratorId == refrigeratorId)
+            .Where(i => i.InventoryTransaction!.RefrigeratorId == refrigeratorId)
             .Select(i => i.Product!)
             .Distinct();
     }

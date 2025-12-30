@@ -35,6 +35,8 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
             return NotFound();
         }
 
+        await repository.PreloadAssocs(refrigerator);
+
         return Ok(new
         {
             Data = refrigerator
@@ -78,7 +80,7 @@ public class RefrigeratorController(RefrigeratorRepository repository, Refrigera
         }
         catch (Exception ex) when (ex is ArgumentException or UnauthorizedAccessException or InvalidOperationException)
         {
-            return BadRequest(new { Message = ex.Message });
+            return UnprocessableEntity(ex.Message);
         }
     }
 

@@ -7,10 +7,21 @@ namespace FuFood.Repositories;
 
 public class ShoppingListItemRepository(AppDbContext dbContext)
 {
-    public async Task<ShoppingListItem?> GetById(Guid id)
+    // 拿 item 列表
+    public async Task<List<ShoppingListItem>> GetItemByShoppingListId(Guid shoppingListId)
     {
-        return await dbContext.ShoppingListItems.Include(x => x.ShoppingList).ThenInclude(l => l!.Refrigerator)
-            .FirstOrDefaultAsync(x => x.Id == id);
+        return await dbContext.ShoppingListItems
+            .Include(x => x.ShoppingList)
+            .ThenInclude(l => l.Refrigerator)
+            .Where(x => x.ShoppingListId == shoppingListId)
+            .OrderByDescending(x => x.Id).ToListAsync();
+    }
+
+    // 拿單一個 item
+    public async Task<ShoppingListItem?> GetItemById(Guid itemId)
+    {
+        return await dbContext.ShoppingListItems.Include(x => x.ShoppingList).ThenInclude(l => l.Refrigerator)
+            .FirstOrDefaultAsync(x => x.Id == itemId);
     }
 
     public async Task<ShoppingListItem> CreateListItem(ShoppingList shoppingList, User user,

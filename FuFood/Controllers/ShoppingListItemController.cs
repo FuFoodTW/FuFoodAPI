@@ -15,13 +15,16 @@ public class ShoppingListItemController(
     {
         var user = await HttpContext.GetCurrentUser();
 
-        var list = await shoppingListRepository.GetById(shoppingListId);
-        if (list == null) return NotFound();
+        // 1.先拿 shoppingList
+        var shoppingList = await shoppingListRepository.GetById(shoppingListId);
+        if (shoppingList == null) return NotFound();
 
-        var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, list.RefrigeratorId);
+        //2. 從 shoppingList 拿 refrigeratorId
+        var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, shoppingList.RefrigeratorId);
         if (refrigerator == null) return NotFound();
 
-        var items = await itemRepository.GetById(shoppingListId);
+        // 3. 拿 items
+        var items = await itemRepository.GetItemByShoppingListId(shoppingListId);
 
         return Ok(new
         {
@@ -56,17 +59,23 @@ public class ShoppingListItemController(
     {
         var user = await HttpContext.GetCurrentUser();
 
-        var item = await itemRepository.GetById(itemId);
-        if (item == null) return NotFound();
+        var item = await itemRepository.GetItemById(itemId);
+        if (item?.ShoppingList == null)
+        {
+            return NotFound();
+        }
 
         var refrigerator = await refrigeratorRepository
-            .GetUserRefrigeratorById(user, item.ShoppingList!.RefrigeratorId);
+            .GetUserRefrigeratorById(user, item.ShoppingList.RefrigeratorId);
 
         if (refrigerator == null) return NotFound();
 
-        await itemRepository.Update(item, request);
+        var listItem = await itemRepository.Update(item, request);
 
-        return Ok();
+        return Ok(new
+        {
+            Data = listItem
+        });
     }
 
     [HttpDelete("/api/v1/shopping_list_items/{itemId:Guid}/")]
@@ -74,7 +83,7 @@ public class ShoppingListItemController(
     {
         var user = await HttpContext.GetCurrentUser();
 
-        var item = await itemRepository.GetById(itemId);
+        var item = await itemRepository.GetItemById(itemId);
         if (item == null) return NotFound();
 
         var refrigerator = await refrigeratorRepository

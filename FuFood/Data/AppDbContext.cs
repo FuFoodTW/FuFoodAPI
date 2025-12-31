@@ -22,6 +22,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public override int SaveChanges()
     {
+        UpdateTimestamps();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
         foreach (var entry in ChangeTracker.Entries<IHasTimestamp>())
         {
             if (entry.State == EntityState.Modified)
@@ -29,8 +41,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
             }
         }
-
-        return base.SaveChanges();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

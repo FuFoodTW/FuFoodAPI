@@ -1,6 +1,7 @@
 using FuFood.Data;
 using FuFood.Models.Requests;
 using FuFood.Models.Entities;
+using FuFood.Models.Enums;
 
 namespace FuFood.Repositories;
 
@@ -25,7 +26,7 @@ public class ProfileRepository(AppDbContext dbContext)
         }
 
         user.Gender = updateProfileRequest.Gender;
-        user.CustomGender = updateProfileRequest.CustomGender;
+        user.CustomGender = user.Gender == Gender.Other ? updateProfileRequest.CustomGender : null;
 
         await dbContext.SaveChangesAsync();
 

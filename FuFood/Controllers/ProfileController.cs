@@ -17,12 +17,12 @@ public class ProfileController(ProfileRepository profileRepository) : Controller
         });
     }
 
-    [HttpPut("/api/v1/profile/{userId:guid}")]
-    public async Task<IActionResult> Update(Guid userId, [FromBody] UpsertProfileRequest upsertProfileRequest)
+    [HttpPut("/api/v1/profile")]
+    public async Task<IActionResult> Update([FromBody] UpdateProfileRequest updateProfileRequest)
     {
         var user = await HttpContext.GetCurrentUser();
 
-        var newUser = await profileRepository.UpdateProfile(user, upsertProfileRequest);
+        var newUser = await profileRepository.UpdateProfile(user, updateProfileRequest);
 
         return Ok(new
         {

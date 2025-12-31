@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         {
             o.MapEnum<UnitType>("product_unit");
             o.MapEnum<SubscriptionTier>("subscription_tier");
+            o.MapEnum<Gender>("gender");
         }));
 
 // Add services to the container.

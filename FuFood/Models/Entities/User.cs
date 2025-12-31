@@ -20,9 +20,7 @@ public class User : IHasTimestamp
 
     [StringLength(255)] public string? Email { get; set; }
 
-    [Column(TypeName = "jsonb")]
-    [StringLength(255)]
-    public List<string>? Preference { get; set; }
+    public List<string>? Preferences { get; set; }
 
     public Enums.Gender Gender { get; set; } = Enums.Gender.NotSpecified;
     [StringLength(10)] public string? CustomGender { get; set; } // 性別自填欄位

@@ -6,14 +6,26 @@ namespace FuFood.Repositories;
 
 public class ProfileRepository(AppDbContext dbContext)
 {
-    public async Task<User> UpdateProfile(User user, UpsertProfileRequest upsertProfileRequest)
+    public async Task<User> UpdateProfile(User user, UpdateProfileRequest updateProfileRequest)
     {
-        user.Name = upsertProfileRequest.Name;
-        user.ProfilePictureUrl = upsertProfileRequest.ProfilePictureUrl;
-        user.Email = upsertProfileRequest.Email;
-        user.Preference = upsertProfileRequest.Preference;
-        user.Gender = upsertProfileRequest.Gender;
-        user.CustomGender = upsertProfileRequest.CustomGender;
+        user.Name = updateProfileRequest.Name;
+        if (!string.IsNullOrEmpty(updateProfileRequest.ProfilePictureUrl))
+        {
+            user.ProfilePictureUrl = updateProfileRequest.ProfilePictureUrl;
+        }
+
+        if (!string.IsNullOrEmpty(updateProfileRequest.Email))
+        {
+            user.Email = updateProfileRequest.Email;
+        }
+
+        if (updateProfileRequest.Preferences != null)
+        {
+            user.Preferences = updateProfileRequest.Preferences;
+        }
+
+        user.Gender = updateProfileRequest.Gender;
+        user.CustomGender = updateProfileRequest.CustomGender;
 
         await dbContext.SaveChangesAsync();
 

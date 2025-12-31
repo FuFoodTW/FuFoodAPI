@@ -16,9 +16,17 @@ public class User : IHasTimestamp
     [StringLength(255)] public required string LineId { get; set; }
 
     [StringLength(255)] public required string Name { get; set; }
-    public string? ProfilePictureUrl { get; set; }
+    [StringLength(255)] public string? ProfilePictureUrl { get; set; }
 
-    [JsonIgnore]
+    [StringLength(255)] public string? Email { get; set; }
+
+    [Column(TypeName = "jsonb")]
+    [StringLength(255)]
+    public List<string>? Preference { get; set; }
+
+    public Enums.Gender Gender { get; set; } = Enums.Gender.NotSpecified;
+    [StringLength(10)] public string? CustomGender { get; set; } // 性別自填欄位
+
     public Enums.SubscriptionTier SubscriptionTier { get; set; } =
         Enums.SubscriptionTier.Free;
 

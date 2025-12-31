@@ -44,6 +44,7 @@ builder.Services.AddScoped<InventoryQueryRepository>();
 builder.Services.AddScoped<RefrigeratorInvitationRepository>();
 builder.Services.AddScoped<ShoppingListRepository>();
 builder.Services.AddScoped<ShoppingListItemRepository>();
+builder.Services.AddScoped<ProfileRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();

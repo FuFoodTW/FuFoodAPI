@@ -1,15 +1,28 @@
 ﻿using System.Security.Claims;
+using FuFood.Models.Requests;
 using FuFood.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FuFood.Controllers;
 
-public class ProfileController : Controller
+public class ProfileController(ProfileRepository profileRepository) : Controller
 {
     [HttpGet("/api/v1/profile")]
     public async Task<IActionResult> Show()
     {
         var user = await HttpContext.GetCurrentUser();
+        return Ok(new
+        {
+            Data = user
+        });
+    }
+
+    [HttpPut("/api/v1/profile")]
+    public async Task<IActionResult> Update([FromBody] UpdateProfileRequest updateProfileRequest)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        await profileRepository.UpdateProfile(user, updateProfileRequest);
+
         return Ok(new
         {
             Data = user

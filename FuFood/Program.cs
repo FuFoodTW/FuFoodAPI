@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         {
             o.MapEnum<UnitType>("product_unit");
             o.MapEnum<SubscriptionTier>("subscription_tier");
+            o.MapEnum<Gender>("gender");
         }));
 
 // Add services to the container.
@@ -44,6 +45,7 @@ builder.Services.AddScoped<InventoryQueryRepository>();
 builder.Services.AddScoped<RefrigeratorInvitationRepository>();
 builder.Services.AddScoped<ShoppingListRepository>();
 builder.Services.AddScoped<ShoppingListItemRepository>();
+builder.Services.AddScoped<ProfileRepository>();
 
 // Services
 builder.Services.AddHttpClient<LineOAuthService>();

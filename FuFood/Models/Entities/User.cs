@@ -18,6 +18,8 @@ public class User : IHasTimestamp
     [StringLength(255)] public required string Name { get; set; }
     [StringLength(255)] public string? ProfilePictureUrl { get; set; }
 
+    [StringLength(255)] public string? Avatar { get; set; }
+
     [StringLength(255)] public string? Email { get; set; }
 
     public List<string>? Preferences { get; set; }

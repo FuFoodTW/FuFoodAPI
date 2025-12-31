@@ -15,6 +15,11 @@ public class ProfileRepository(AppDbContext dbContext)
             user.ProfilePictureUrl = updateProfileRequest.ProfilePictureUrl;
         }
 
+        if (!string.IsNullOrEmpty(updateProfileRequest.Avatar))
+        {
+            user.Avatar = updateProfileRequest.Avatar;
+        }
+
         if (!string.IsNullOrEmpty(updateProfileRequest.Email))
         {
             user.Email = updateProfileRequest.Email;

@@ -5,6 +5,8 @@ public class UpdateProfileRequest
     public required string Name { get; set; }
     public string? ProfilePictureUrl { get; set; }
 
+    public string? Avatar { get; set; }
+
     public string? Email { get; set; }
 
     public List<string>? Preferences { get; set; }

@@ -50,9 +50,4 @@ public class UserRepository(AppDbContext db)
     {
         return await db.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
-
-    public async Task<User?> GetUserByIdAsNoTracking(Guid id)
-    {
-        return await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-    }
 }

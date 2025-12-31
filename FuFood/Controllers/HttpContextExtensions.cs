@@ -31,7 +31,7 @@ public static class HttpContextExtensions
             }
 
             var userRepository = context.RequestServices.GetRequiredService<UserRepository>();
-            var user = await userRepository.GetUserByIdAsNoTracking(userId.Value);
+            var user = await userRepository.GetUserById(userId.Value);
             return user!;
         }
     }

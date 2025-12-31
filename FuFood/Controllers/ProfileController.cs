@@ -21,12 +21,11 @@ public class ProfileController(ProfileRepository profileRepository) : Controller
     public async Task<IActionResult> Update([FromBody] UpdateProfileRequest updateProfileRequest)
     {
         var user = await HttpContext.GetCurrentUser();
-
-        var newUser = await profileRepository.UpdateProfile(user, updateProfileRequest);
+        await profileRepository.UpdateProfile(user, updateProfileRequest);
 
         return Ok(new
         {
-            Data = newUser
+            Data = user
         });
     }
 }

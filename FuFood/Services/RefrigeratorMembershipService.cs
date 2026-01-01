@@ -65,4 +65,12 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
                 """, FreeSubscriptionLimit, ProSubscriptionLimit, refrigeratorId)
             .FirstOrDefaultAsync();
     }
+
+    public async Task DeleteMembership(Guid refrigeratorId, Guid memberId)
+    {
+        await dbContext.RefrigeratorMemberships
+            .Where(m => m.MemberId == memberId)
+            .Where(m => m.RefrigeratorId == refrigeratorId)
+            .ExecuteDeleteAsync();
+    }
 }

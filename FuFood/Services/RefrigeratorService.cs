@@ -20,10 +20,10 @@ public class RefrigeratorService(RefrigeratorRepository repository)
         }
 
         // Check 24-hour limit
-        var nextAvailableTime = refrigerator.NameUpdatedAt.AddHours(24);
+        var nextAvailableTime = refrigerator.NameUpdatedAt.AddSeconds(30);
         if (DateTime.UtcNow < nextAvailableTime)
         {
-            throw new InvalidOperationException("修改群組名稱每 24 小時限一次");
+            throw new InvalidOperationException("修改群組名稱每 30 秒限一次");
         }
 
         refrigerator.Name = newName;

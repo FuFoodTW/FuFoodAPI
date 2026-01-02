@@ -17,6 +17,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
             .ToListAsync();
     }
 
+    // 取得單一特定會員冰箱
     public async Task<Refrigerator?> GetUserRefrigeratorById(User user, Guid id)
     {
         return await dbContext.RefrigeratorMemberships
@@ -26,6 +27,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
             .FirstOrDefaultAsync();
     }
 
+    // 取得擁有的單一個冰箱
     public async Task<Refrigerator?> GetOwnedRefrigeratorById(User user, Guid id)
     {
         return await dbContext.Refrigerators
@@ -33,6 +35,7 @@ public class RefrigeratorRepository(AppDbContext dbContext)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
+    // 取得單一個冰箱
     public async Task<Refrigerator?> GetByIdAsync(Guid id)
     {
         return await dbContext.Refrigerators.FirstOrDefaultAsync(r => r.Id == id);
@@ -81,5 +84,11 @@ public class RefrigeratorRepository(AppDbContext dbContext)
         dbContext.Refrigerators.Remove(refrigerator);
         await dbContext.SaveChangesAsync();
         return true;
+    }
+
+    public async Task LeaveRefrigeratorById(RefrigeratorMembership membership)
+    {
+        dbContext.RefrigeratorMemberships.Remove(membership);
+        await dbContext.SaveChangesAsync();
     }
 }

@@ -40,6 +40,13 @@ public class RefrigeratorMembershipController(
         }
     }
 
+
+    /// <summary>
+    /// 群組擁有者可以刪除群內成員
+    /// </summary>
+    /// <param name="refrigeratorId"></param>
+    /// <param name="memberId"></param>
+    /// <returns></returns>
     [HttpDelete("/api/v1/refrigerator/{refrigeratorId:guid}/memberships/{memberId:guid}")]
     public async Task<IActionResult> Delete(Guid refrigeratorId, Guid memberId)
     {
@@ -57,6 +64,26 @@ public class RefrigeratorMembershipController(
 
         await membershipService.DeleteMembership(refrigeratorId, memberId);
 
+        return NoContent();
+    }
+
+    /// <summary>
+    /// 群組內的成員自己退出群組
+    /// </summary>
+    /// <param name="refrigeratorId"></param>
+    /// <returns></returns>
+    [HttpDelete("/api/v1/refrigerator/{refrigeratorId:guid}/leave")]
+    public async Task<IActionResult> Leave(Guid refrigeratorId)
+    {
+        var user = await HttpContext.GetCurrentUser();
+        var refrigerator = await refrigeratorRepository.GetUserRefrigeratorById(user, refrigeratorId);
+
+        if (refrigerator == null)
+        {
+            return NotFound();
+        }
+
+        await membershipService.DeleteMembership(refrigeratorId, user.Id);
         return NoContent();
     }
 }

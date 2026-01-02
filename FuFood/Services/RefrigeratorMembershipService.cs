@@ -6,8 +6,8 @@ namespace FuFood.Services;
 
 public class RefrigeratorMembershipService(AppDbContext dbContext)
 {
-    private const int FreeSubscriptionLimit = 3;
-    private const int ProSubscriptionLimit = 5;
+    private const int FreeSubscriptionLimit = 5;
+    private const int ProSubscriptionLimit = 10;
 
     public async Task<RefrigeratorMembership> CreateFromInvitation(User user, RefrigeratorInvitation invitation)
     {

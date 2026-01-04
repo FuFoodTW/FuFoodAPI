@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using FuFood.Models.Enums;
 using FuFood.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,11 +25,16 @@ public class User : IHasTimestamp
 
     public List<string>? Preferences { get; set; }
 
-    public Enums.Gender Gender { get; set; } = Enums.Gender.NotSpecified;
+    public Gender Gender { get; set; } = Gender.NotSpecified;
     [StringLength(10)] public string? CustomGender { get; set; } // 性別自填欄位
 
-    public Enums.SubscriptionTier SubscriptionTier { get; set; } =
-        Enums.SubscriptionTier.Free;
+    public DateTime? SubscriptionValidUntil { get; set; }
+
+    [JsonInclude]
+    public SubscriptionTier SubscriptionTier =>
+        (SubscriptionValidUntil == null || SubscriptionValidUntil < DateTime.UtcNow)
+            ? SubscriptionTier.Free
+            : SubscriptionTier.Pro;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

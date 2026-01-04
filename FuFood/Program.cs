@@ -56,6 +56,7 @@ builder.Services.AddScoped<RefrigeratorService>();
 builder.Services.AddScoped<CommitTransactionService>();
 builder.Services.AddScoped<RefrigeratorInvitationService>();
 builder.Services.AddScoped<RefrigeratorMembershipService>();
+builder.Services.AddScoped<SubscriptionService>();
 
 builder.Services.AddAuthentication("AccessToken")
     .AddScheme<AccessTokenHandler.AccessTokenHandlerOptions, AccessTokenHandler>("AccessToken", opts => { });

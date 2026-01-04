@@ -53,15 +53,16 @@ public class RefrigeratorMembershipService(AppDbContext dbContext)
         return await dbContext.Database
             .SqlQueryRaw<int>(
                 """
-                select (case u."SubscriptionTier"
-                        when 'free' then {0}
-                        when 'pro' then {1}
+                select (case
+                    when u."SubscriptionValidUntil" is null
+                        or u."SubscriptionValidUntil" < now()
+                        then {0} else {1}
                     end - count(m."Id")) AS "Value"
                 from "Refrigerators" r
                 left join "RefrigeratorMemberships" m on m."RefrigeratorId" = r."Id"
                 join "Users" u on r."OwnerId" = u."Id"
                 where r."Id" = {2}
-                group by u."SubscriptionTier"
+                group by u."SubscriptionValidUntil"
                 """, FreeSubscriptionLimit, ProSubscriptionLimit, refrigeratorId)
             .FirstOrDefaultAsync();
     }

@@ -12,16 +12,20 @@ public class LineOAuthController(
     LineOAuthService lineService,
     UserRepository userRepository,
     JwtService jwtService,
+    RefrigeratorInvitationRepository invitationRepository,
+    RefrigeratorMembershipService membershipService,
     IHostEnvironment env)
     : Controller
 {
     private const string StateCookieName = "oauth_state";
     private const string RedirectUrlCookieName = "oauth_redirect_url";
     private const string DefaultRedirectUrl = "https://fufood.jocelynh.me";
+    private const string InvitationTokenCookieName = "oauth_invitation_token";
 
     // Init() 工作 1.產生隨機值 2.設定 cookie 3.導向 line 登入的 URL
     [HttpGet("/oauth/line/init")]
-    public IActionResult Init([FromQuery(Name = "ref")] string? redirectTo)
+    public IActionResult Init([FromQuery(Name = "ref")] string? redirectTo,
+        [FromQuery(Name = "invite")] string? invitationToken)
     {
         var state = GenerateState();
         var cookieOptions = new CookieOptions
@@ -37,6 +41,12 @@ public class LineOAuthController(
         if (!string.IsNullOrEmpty(redirectTo))
         {
             Response.Cookies.Append(RedirectUrlCookieName, redirectTo, cookieOptions);
+        }
+
+        // 儲存 invitation token
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            Response.Cookies.Append(InvitationTokenCookieName, invitationToken, cookieOptions);
         }
 
         var url = lineService.GetAuthorizationUrl(state);
@@ -72,6 +82,18 @@ public class LineOAuthController(
         Response.Cookies.Append(Constants.AccessTokenCookieName, accessToken, cookieOptions);
         Response.Cookies.Delete(StateCookieName);
         Response.Cookies.Delete(RedirectUrlCookieName);
+
+        // 自動加入群組（有 invitation token 的話）
+        if (Request.Cookies.TryGetValue(InvitationTokenCookieName, out var invToken) && !string.IsNullOrEmpty(invToken))
+        {
+            var invitation = await invitationRepository.GetInvitationByToken(invToken);
+            if (invitation != null)
+            {
+                await membershipService.CreateFromInvitation(user, invitation);
+            }
+
+            Response.Cookies.Delete(InvitationTokenCookieName);
+        }
 
         return Redirect(redirectUrl ?? DefaultRedirectUrl);
     }
